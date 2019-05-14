@@ -41,6 +41,11 @@ setuptools.setup(
     long_description_content_type="text/markdown",
     packages=["markdown_katex"],
     package_dir={"": "src"},
+    package_data={
+        "markdown_katex": [
+            os.path.join("bin", "katex*"),
+        ],
+    },
     install_requires=install_requires,
     entry_points="""
         [console_scripts]
