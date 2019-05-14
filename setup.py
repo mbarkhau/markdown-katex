@@ -18,6 +18,23 @@ def read(*sub_paths):
         return fh.read().decode("utf-8")
 
 
+package_dir = {"": "src"}
+
+
+if any(arg.startswith("bdist") for arg in sys.argv):
+    try:
+        import lib3to6
+        package_dir = lib3to6.fix(package_dir)
+    except ImportError:
+        if sys.version_info < (3, 6):
+            raise
+        else:
+            sys.stderr.write((
+                "WARNING: Creating non-universal bdist of pycalver, "
+                "this should only be used for development.\n"
+            ))
+
+
 install_requires = [
     line.strip()
     for line in read("requirements", "pypi.txt").splitlines()
@@ -40,19 +57,20 @@ setuptools.setup(
     long_description=long_description,
     long_description_content_type="text/markdown",
     packages=["markdown_katex"],
-    package_dir={"": "src"},
+    package_dir=package_dir,
     package_data={
         "markdown_katex": [
             os.path.join("bin", "katex*"),
         ],
     },
     install_requires=install_requires,
-    entry_points="""
-        [console_scripts]
-        markdown_katex=markdown_katex.__main__:cli
-    """,
-    python_requires=">=3.6",
+    python_requires=">=2.7",
     zip_safe=True,
+    entry_points={
+        'markdown.extensions': [
+            'markdown_katex = markdown_katex.extension:KatexExtension',
+        ]
+    },
 
     # See https://pypi.python.org/pypi?%3Aaction=list_classifiers
     classifiers=[
@@ -64,8 +82,10 @@ setuptools.setup(
         "Operating System :: Unix",
         "Operating System :: POSIX",
         "Operating System :: MacOS :: MacOS X",
-        # "Operating System :: Microsoft :: Windows",
+        "Operating System :: Microsoft :: Windows",
         "Programming Language :: Python",
+        "Programming Language :: Python :: 2.7",
+        "Programming Language :: Python :: 3.5",
         "Programming Language :: Python :: 3.6",
         "Programming Language :: Python :: 3.7",
         "Programming Language :: Python :: Implementation :: CPython",
