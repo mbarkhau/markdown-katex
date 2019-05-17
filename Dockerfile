@@ -3,6 +3,7 @@ FROM registry.gitlab.com/mbarkhau/markdown-katex/base
 ADD src/ src/
 ADD stubs/ stubs/
 ADD test/ test/
+ADD fixture_data/ fixture_data/
 ADD requirements/ requirements/
 ADD setup.cfg setup.cfg
 ADD setup.py setup.py

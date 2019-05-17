@@ -1,4 +1,5 @@
 import pytest
+import tempfile
 import pathlib2 as pl
 
 from markdown import markdown
@@ -8,6 +9,9 @@ import markdown_katex.wrapper as wrp
 import markdown_katex.extension as ext
 
 DATA_DIR = pl.Path(__file__).parent.parent / "fixture_data"
+DATA_DIR.mkdir(parents=True, exist_ok=True)
+
+TMP_DIR = pl.Path(tempfile.gettempdir()) / "mdkatex"
 
 BASIC_TEX_TXT = r"""
 f(x) = \int_{-\infty}^\infty
@@ -184,5 +188,6 @@ def test_html_output():
 
     extensions = DEFAULT_MKDOCS_EXTENSIONS + ['markdown_katex']
     result     = markdown(md_text, extensions=extensions)
-    with open("/tmp/mdkatex.html", mode="w") as fh:
+    tmp_file = TMP_DIR / "test_output.html"
+    with tmp_file.open(mode="w", encoding="utf-8") as fh:
         fh.write(result)
