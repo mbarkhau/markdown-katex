@@ -355,10 +355,15 @@ test:
 
 	# Next we install the package and run the test suite against it.
 
+	rm -rf build/test_wheel;
+	mkdir -p build/test_wheel;
+	$(DEV_ENV_PY) setup.py bdist_wheel --dist-dir build/test_wheel;
+
 	IFS=' ' read -r -a env_py_paths <<< "$(CONDA_ENV_BIN_PYTHON_PATHS)"; \
 	for i in $${!env_py_paths[@]}; do \
 		env_py=$${env_py_paths[i]}; \
-		$${env_py} -m pip install --upgrade .; \
+		$${env_py} -m pip uninstall --yes $(PKG_NAME); \
+		$${env_py} -m pip install --upgrade build/test_wheel/*.whl; \
 		PYTHONPATH="" ENV=$${ENV-dev} $${env_py} -m pytest test/; \
 	done;
 
