@@ -108,7 +108,7 @@ def test_basic_block():
     assert no_inline_svg == default_output
     assert default_output
     assert default_output.startswith('<span class="katex-display"')
-    expected = "<p>{}</p>".format(default_output)
+    expected = u"<p>{}</p>".format(default_output)
 
     result = markdown(BASIC_BLOCK_TXT, extensions=['markdown_katex'])
 
