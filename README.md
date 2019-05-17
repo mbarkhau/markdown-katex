@@ -90,7 +90,6 @@ markdown_extensions:
       no_inline_svg: True
 ```
 
-Valid options for `tag_type` are `inline_svg` (the default), `img_utf8_svg` and `img_base64_svg`.
 
 [href_cben_mathdown]: https://github.com/cben/mathdown/wiki/math-in-markdown
 

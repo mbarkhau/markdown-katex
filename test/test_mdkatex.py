@@ -188,6 +188,6 @@ def test_html_output():
 
     extensions = DEFAULT_MKDOCS_EXTENSIONS + ['markdown_katex']
     result     = markdown(md_text, extensions=extensions)
-    tmp_file = TMP_DIR / "test_output.html"
+    tmp_file   = TMP_DIR / "test_output.html"
     with tmp_file.open(mode="w", encoding="utf-8") as fh:
         fh.write(result)
