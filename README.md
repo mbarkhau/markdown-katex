@@ -44,8 +44,55 @@ $ npx katex --version
 0.10.2
 ```
 
-This extension will always use the installed version of katex if it is available.
+This extension will always use the locally installed version of KaTeX if it is available, instead of using the implementation bundled with this package.
 
+No JavaScript is required to render the resulting HTML, so it can be used with more limited renderers (which don't support JavaScript) such as [WeasyPrint](https://weasyprint.org/) .
+
+
+## Usage
+
+Formulas can be created and edited interactively using the editor on [katex.org](https://katex.org/). When embedding these in your Markdown files, they must be marked with a special syntax in order to be rendered using KaTeX. There are [many syntax extensions][href_cben_mathdown] for Markdown that allow LaTeX formulas to be embedded, however this package only supports the syntax introduced by Gitlab:
+
+ - For inline mode formulas: &dollar;&#96;...&#96;&dollar; 
+ - For display mode formulas: &#96;&#96;&#96;math
+
+Here is [an example](https://gitlab.com/snippets/1857641) that uses this syntax.
+
+There are two main advantages of this syntax:
+
+ 1. Gitlab has an existing Markdown renderer that can be used without the need to download any software. This implementation also uses KaTeX, so the output should be exactly the same as this extension.
+ 2. The fallback behaviour of other Markdown renderers is to render the raw LaTeX as inline code or a code block. This means that they won't inadvertently parse a LaTeX formula as Markdown syntax.
+
+Hopefully other renderers will also adopt support for this syntax as:
+
+ 1. Rendering is done in the browser using KaTeX so implementation effort and should be minimal.
+ 2. The false positive rate for existing Markdown documents is negligible (ie. existing alternate use of &dollar;&#96; syntax is minimal to non-existent).
+
+
+## Development/Testing
+
+```bash
+$ git clone https://gitlab.com/mbarkhau/markdown-katex
+$ cd markdown-katex
+$ make install
+$ make lint mypy test
+```
+
+
+
+## MkDocs Integration
+
+In your `mkdocs.yml` add this to markdown_extensions.
+
+```yaml
+markdown_extensions:
+  - markdown_katex:
+      no_inline_svg: True
+```
+
+Valid options for `tag_type` are `inline_svg` (the default), `img_utf8_svg` and `img_base64_svg`.
+
+[href_cben_mathdown]: https://github.com/cben/mathdown/wiki/math-in-markdown
 
 [repo_ref]: https://gitlab.com/mbarkhau/markdown-katex
 
