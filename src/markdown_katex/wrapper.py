@@ -188,8 +188,6 @@ def _cleanup_tmp_dir() -> None:
             fpath.unlink()
 
 
-
-
 # NOTE: in order to not have to update the code
 #   of the extension any time an option is added,
 #   we parse the help text of the katex command.
