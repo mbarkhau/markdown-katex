@@ -51,7 +51,7 @@ No JavaScript is required to render the resulting HTML, so it can be used with m
 
 ## Usage
 
-Formulas can be created and edited interactively using the editor on [katex.org](https://katex.org/). When embedding these in your Markdown files, they must be marked with a special syntax in order to be rendered using KaTeX. There are [many syntax extensions][href_cben_mathdown] for Markdown that allow LaTeX formulas to be embedded, however this package only supports the syntax introduced by Gitlab:
+Formulas can be created and edited interactively using the editor on [katex.org](https://katex.org/). They also have some [good documentation][href_katex_docs] for the subset of LaTeX that is supported. When embedding these in your Markdown files, they must be marked with a special syntax in order to be rendered using KaTeX. There are [many syntax extensions][href_cben_mathdown] for Markdown that allow LaTeX formulas to be embedded, however this package only supports the syntax introduced by Gitlab:
 
  - For inline mode formulas: &dollar;&#96;...&#96;&dollar; 
  - For display mode formulas: &#96;&#96;&#96;math
@@ -123,3 +123,6 @@ markdown_extensions:
 [pyversions_ref]: https://pypi.python.org/pypi/markdown-katex
 
 [href_katexinstall_cli]: https://katex.org/docs/cli.html
+
+[href_katex_docs]: https://katex.org/docs/supported.html
+

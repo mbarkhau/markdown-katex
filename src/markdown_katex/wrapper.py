@@ -83,15 +83,17 @@ def get_bin_path() -> pl.Path:
         return _get_pkg_bin_path()
 
 
-def read_output(proc: sp.Popen) -> typ.Iterable[bytes]:
-    buf: typ.IO[bytes] = proc.stdout
-
+def _iter_output_lines(buf: typ.IO[bytes]) -> typ.Iterable[bytes]:
     while True:
         output = buf.readline()
         if output:
             yield output
         else:
             return
+
+
+def read_output(buf: typ.IO[bytes]) -> str:
+    return b"".join(_iter_output_lines(buf)).decode("utf-8")
 
 
 ArgValue = typ.Union[str, int, float, bool]
@@ -136,8 +138,14 @@ def tex2html(tex: str, options: Options = None) -> str:
         with tmp_input_file.open(mode="wb") as fobj:
             fobj.write(input_data)
 
-        proc = sp.Popen(cmd_parts)
-        proc.wait()
+        proc     = sp.Popen(cmd_parts, stdout=sp.PIPE, stderr=sp.PIPE)
+        ret_code = proc.wait()
+        if ret_code != 0:
+            stdout  = read_output(proc.stdout)
+            errout  = read_output(proc.stderr)
+            output  = (stdout + "\n" + errout).strip()
+            err_msg = f"Error processing '{tex}': {output}"
+            raise Exception(err_msg)
 
         tmp_input_file.unlink()
 
@@ -176,8 +184,8 @@ def _get_cmd_help_text() -> str:
     binpath   = get_bin_path()
     cmd_parts = [str(binpath), "--help"]
     proc      = sp.Popen(cmd_parts, stdout=sp.PIPE)
-    help_data = b"".join(read_output(proc))
-    return help_data.decode("utf-8")
+    help_text = read_output(proc.stdout)
+    return help_text
 
 
 OptionsHelp = typ.Dict[str, str]

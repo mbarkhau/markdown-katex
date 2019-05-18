@@ -166,6 +166,18 @@ def test_no_svg_inline():
     assert "<img" in result
 
 
+def test_err_msg():
+    invalid_md_txt = r"$`e^{2 \pi i \xi x`$"
+    md_txt         = INLINE_MD_TMPL.format(invalid_md_txt)
+    try:
+        result = markdown(md_txt, extensions=['markdown_katex'])
+        assert False, "expected an exception"
+    except Exception as ex:
+        err_msg = ex.args[0]
+        assert u"ParseError: KaTeX parse error:" in err_msg
+        assert u"Expected '}'" in err_msg
+
+
 def test_bin_paths():
     assert wrp._get_pkg_bin_path().exists()
     assert wrp._get_pkg_bin_path(machine="x86_64", osname="Windows").exists()
