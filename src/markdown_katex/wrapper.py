@@ -10,12 +10,22 @@
 
 import os
 import re
+import signal
 import hashlib
 import tempfile
 import platform
 import typing as typ
 import pathlib2 as pl
 import subprocess as sp
+
+
+SIG_NAME_BY_NUM = {
+    k: v
+    for v, k in reversed(sorted(signal.__dict__.items()))
+    if v.startswith('SIG') and not v.startswith('SIG_')
+}
+
+assert SIG_NAME_BY_NUM[15] == 'SIGTERM'
 
 
 TMP_DIR = pl.Path(tempfile.gettempdir()) / "mdkatex"
@@ -140,7 +150,15 @@ def tex2html(tex: str, options: Options = None) -> str:
 
         proc     = sp.Popen(cmd_parts, stdout=sp.PIPE, stderr=sp.PIPE)
         ret_code = proc.wait()
-        if ret_code != 0:
+        if ret_code < 0:
+            signame = SIG_NAME_BY_NUM[abs(ret_code)]
+            err_msg = (
+                f"Error processing '{tex}': "
+                + "katex_cli process ended with "
+                + f"code {ret_code} ({signame})"
+            )
+            raise Exception(err_msg)
+        elif ret_code > 0:
             stdout  = read_output(proc.stdout)
             errout  = read_output(proc.stderr)
             output  = (stdout + "\n" + errout).strip()
