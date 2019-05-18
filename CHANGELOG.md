@@ -1,6 +1,6 @@
 # Changelog for https://gitlab.com/mbarkhau/markdown-katex
 
-## v201905.0003-beta
+## v201905.0004-beta
 
  - Fix: better error reporting
  - Fix: cleanup temp dir
