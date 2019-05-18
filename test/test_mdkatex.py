@@ -187,7 +187,11 @@ def test_html_output():
     md_text = "# Headline\n\n" + "\n".join(md_parts)
 
     extensions = DEFAULT_MKDOCS_EXTENSIONS + ['markdown_katex']
-    result     = markdown(md_text, extensions=extensions)
-    tmp_file   = TMP_DIR / "test_output.html"
+    result     = markdown(
+        md_text,
+        extensions=extensions,
+        extension_configs={'markdown_katex': {'no_inline_svg': True}},
+    )
+    tmp_file = TMP_DIR / "test_output.html"
     with tmp_file.open(mode="w", encoding="utf-8") as fh:
         fh.write(result)
