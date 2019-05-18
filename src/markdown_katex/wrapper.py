@@ -10,6 +10,7 @@
 
 import os
 import re
+import time
 import signal
 import hashlib
 import tempfile
@@ -141,7 +142,9 @@ def tex2html(tex: str, options: Options = None) -> str:
     tmp_input_file  = TMP_DIR / (digest + ".tex")
     tmp_output_file = TMP_DIR / (digest + ".html")
 
-    if not tmp_output_file.exists():
+    if tmp_output_file.exists():
+        tmp_output_file.touch()
+    else:
         cmd_parts.extend(["--input", str(tmp_input_file), "--output", str(tmp_output_file)])
 
         TMP_DIR.mkdir(parents=True, exist_ok=True)
@@ -168,7 +171,23 @@ def tex2html(tex: str, options: Options = None) -> str:
         tmp_input_file.unlink()
 
     with tmp_output_file.open(mode="r") as fobj:
-        return fobj.read()
+        result = fobj.read()
+
+    _cleanup_tmp_dir()
+
+    return result
+
+
+def _cleanup_tmp_dir() -> None:
+    min_mtime = time.time() - 24 * 60 * 60
+    for fpath in TMP_DIR.iterdir():
+        if not fpath.is_file():
+            continue
+        mtime = fpath.stat().st_mtime
+        if mtime < min_mtime:
+            fpath.unlink()
+
+
 
 
 # NOTE: in order to not have to update the code
