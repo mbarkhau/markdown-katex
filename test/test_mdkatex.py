@@ -72,9 +72,30 @@ def test_svg2img(katex_output):
 
 
 def test_regexp():
-    assert ext.KatexPreprocessor.BLOCK_RE.match(BASIC_BLOCK_TXT)
+    assert ext.BLOCK_RE.match(BASIC_BLOCK_TXT)
     alt_block_text = BASIC_BLOCK_TXT.replace("```", "~~~")
-    assert ext.KatexPreprocessor.BLOCK_RE.match(alt_block_text)
+    assert ext.BLOCK_RE.match(alt_block_text)
+
+
+INLINE_TEST_CASES = {
+    "1 pre `a+b` post"     : [],
+    "2 pre $`a+b` post"    : [],
+    "3 pre `a+b`$ post"    : [],
+    "4 pre $`a+b`$ post"   : ["$`a+b`$"],
+    "5 pre $``a+b``$ post" : ["$``a+b``$"],
+    "6 pre``$`a+b`$`` post": [],
+    "7 pre``$`a+b`$`` post": [],
+    # multimatch
+    "1 pre $a+b`$ inter $c+d`$  post"      : [],
+    "2 pre $`a+b`$ inter $`c+d`$  post"    : ["$`a+b`$", "$`c+d`$"],
+    "3 pre $``a+b``$ inter $``c+d``$  post": ["$``a+b``$", "$``c+d``$"],
+}
+
+
+@pytest.mark.parametrize("line, expected", INLINE_TEST_CASES.items())
+def test_inline_parsing(line, expected):
+    result = list(ext.iter_inline_katex(line))
+    assert result == expected
 
 
 def test_determinism():
@@ -127,7 +148,7 @@ prelude {0} interlude {0}  postscript.
 """
 
 
-def test_basic_inline():
+def test_inline_basic():
     inline_txt    = "$`" + BASIC_TEX + "`$"
     inline_output = ext.md_inline2html(inline_txt)
     assert '<span class="katex"' in inline_output
@@ -144,7 +165,7 @@ def test_basic_inline():
     assert result.strip().startswith(ext.KATEX_STYLES.strip())
 
 
-def test_no_svg_inline():
+def test_inline_no_svg():
     inline_md_txt = "$`" + TEX_WITH_SVG_OUTPUT + "`$"
     inline_output = ext.md_inline2html(inline_md_txt)
     assert '<span class="katex"' in inline_output

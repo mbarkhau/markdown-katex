@@ -107,8 +107,12 @@ def md_block2html(block_text: str, default_options: wrapper.Options = None) -> s
 
 
 def _clean_inline_text(inline_text: str) -> str:
+    if inline_text.startswith("$``"):
+        inline_text = inline_text[len("$``") :]
     if inline_text.startswith("$`"):
         inline_text = inline_text[len("$`") :]
+    if inline_text.endswith("``$"):
+        inline_text = inline_text[: -len("``$")]
     if inline_text.endswith("`$"):
         inline_text = inline_text[: -len("`$")]
     return inline_text
@@ -118,6 +122,40 @@ def md_inline2html(inline_text: str, default_options: wrapper.Options = None) ->
     options     = default_options.copy() if default_options else {}
     inline_text = _clean_inline_text(inline_text)
     return tex2html(inline_text, options)
+
+
+INLINE_DELIM_RE = re.compile(r"`{1,2}")
+
+
+def iter_inline_katex(line: str) -> typ.Iterable[str]:
+    # if line.startswith("4 prelude"):
+    #     import pudb; pudb.set_trace()
+    pos = 0
+    while True:
+        inline_match_start = INLINE_DELIM_RE.search(line, pos)
+        if inline_match_start is None:
+            break
+
+        pos   = inline_match_start.end()
+        start = inline_match_start.start()
+        delim = inline_match_start.group()
+
+        try:
+            end = line.index(delim, start + len(delim)) + (len(delim) - 1)
+        except ValueError:
+            continue
+
+        pos = end
+
+        if line[start - 1] != "$":
+            continue
+        if line[end + 1] != "$":
+            continue
+
+        pos = end + len(delim)
+
+        inline_text = line[start - 1 : end + 2]
+        yield inline_text
 
 
 class KatexExtension(Extension):
@@ -141,11 +179,10 @@ class KatexExtension(Extension):
         md.registerExtension(self)
 
 
+BLOCK_RE = re.compile(r"^(```|~~~)math")
+
+
 class KatexPreprocessor(Preprocessor):
-
-    BLOCK_RE  = re.compile(r"^(```|~~~)math")
-    INLINE_RE = re.compile(r"\$`.*?`\$")
-
     def __init__(self, md, ext: KatexExtension) -> None:
         super(KatexPreprocessor, self).__init__(md)
         self.ext: KatexExtension = ext
@@ -176,16 +213,11 @@ class KatexPreprocessor(Preprocessor):
                 tag_text     = f"<p>{math_html}</p>"
                 out_lines.append(marker)
                 self.ext.math_html[marker] = tag_text
-            elif self.BLOCK_RE.match(line):
+            elif BLOCK_RE.match(line):
                 is_in_fence = True
                 block_lines.append(line)
             else:
-                while True:
-                    inline_match = self.INLINE_RE.search(line)
-                    if inline_match is None:
-                        break
-
-                    inline_text  = inline_match.group(0)
+                for inline_text in iter_inline_katex(line):
                     math_html    = md_inline2html(inline_text, default_options)
                     math_html_id = id(math_html)
                     marker       = f"<span id='katex{math_html_id}'>katex{math_html_id}</span>"
