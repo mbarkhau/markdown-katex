@@ -159,12 +159,12 @@ def iter_inline_katex(line: str) -> typ.Iterable[InlineCodeItem]:
         if line[end + 1] != "$":
             continue
 
-        pos = end + len(delim)
-
         inline_text = line[start - 1 : end + 2]
-        marker_id   = id((start, end, inline_text))
+        marker_id   = id(inline_text)
         marker      = f"<span id='katex{marker_id}'>katex{marker_id}</span>"
-        line        = line[:start - 1] + marker + line[end + 2:]
+        line        = line[: start - 1] + marker + line[end + 2 :]
+
+        pos = end + len(delim) - len(inline_text) + len(marker)
 
         yield InlineCodeItem(inline_text, marker, line)
 
@@ -199,15 +199,15 @@ class KatexPreprocessor(Preprocessor):
         self.ext: KatexExtension = ext
 
     def run(self, lines: typ.List[str]) -> typ.List[str]:
-        is_in_fence = False
-        out_lines  : typ.List[str] = []
-        block_lines: typ.List[str] = []
-
         default_options: wrapper.Options = {}
         for name in self.ext.config.keys():
             val = self.ext.getConfig(name, "")
             if val != "":
                 default_options[name] = val
+
+        is_in_fence = False
+        block_lines: typ.List[str] = []
+        out_lines  : typ.List[str] = []
 
         for line in lines:
             if is_in_fence:
@@ -228,10 +228,10 @@ class KatexPreprocessor(Preprocessor):
                 is_in_fence = True
                 block_lines.append(line)
             else:
-                for inline_text, marker, rewritten_line in iter_inline_katex(line):
-                    math_html = md_inline2html(inline_text, default_options)
-                    self.ext.math_html[marker] = math_html
-                    line = rewritten_line
+                for inline_code in iter_inline_katex(line):
+                    math_html = md_inline2html(inline_code.inline_text, default_options)
+                    self.ext.math_html[inline_code.marker] = math_html
+                    line = inline_code.rewritten_line
 
                 out_lines.append(line)
 

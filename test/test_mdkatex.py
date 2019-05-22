@@ -1,8 +1,9 @@
+import re
 import pytest
 import tempfile
 import pathlib2 as pl
 
-from markdown import markdown
+import markdown as md
 
 import markdown_katex
 import markdown_katex.wrapper as wrp
@@ -131,7 +132,7 @@ def test_basic_block():
     assert default_output.startswith('<span class="katex-display"')
     expected = u"<p>{}</p>".format(default_output)
 
-    result = markdown(BASIC_BLOCK_TXT, extensions=['markdown_katex'])
+    result = md.markdown(BASIC_BLOCK_TXT, extensions=['markdown_katex'])
 
     assert default_output in result
 
@@ -154,7 +155,7 @@ def test_inline_basic():
     assert '<span class="katex"' in inline_output
 
     inline_md_txt = INLINE_MD_TMPL.format(inline_txt, inline_txt)
-    result        = markdown(inline_md_txt, extensions=['markdown_katex'])
+    result        = md.markdown(inline_md_txt, extensions=['markdown_katex'])
     assert '<span class="katex"' in result
     assert "Headline" in result
     assert "prelude" in result
@@ -171,14 +172,34 @@ def test_inline_quoted():
     inline_output     = ext.md_inline2html(inline_txt)
 
     inline_md_txt = INLINE_MD_TMPL.format(inline_txt, quoted_inline_txt)
-    result        = markdown(inline_md_txt, extensions=['markdown_katex'])
+    result        = md.markdown(inline_md_txt, extensions=['markdown_katex'])
     assert result.count(inline_output) == 1
     assert "span id='katex" not in result
 
     inline_md_txt = INLINE_MD_TMPL.format(quoted_inline_txt, inline_txt)
-    result        = markdown(inline_md_txt, extensions=['markdown_katex'])
+    result        = md.markdown(inline_md_txt, extensions=['markdown_katex'])
     assert result.count(inline_output) == 1
     assert "span id='katex" not in result
+
+
+def test_marker_uniqueness():
+    inline_txt_1 = "$`a+b`$"
+    inline_txt_2 = "$``c+d``$"
+    inline_txt_3 = "$``a+b``$"
+
+    inline_md_txt = "\n\n".join(
+        ["start", inline_txt_1, "interlude", inline_txt_2, "interlude", inline_txt_3, "end"]
+    )
+    md_ctx  = md.Markdown(extensions=['markdown_katex'])
+    preproc = next(
+        iter((pp for pp in md_ctx.preprocessors if isinstance(pp, ext.KatexPreprocessor)))
+    )
+    out_lines = preproc.run(inline_md_txt.splitlines())
+    md_output = "\n".join(out_lines)
+
+    assert md_output.count("span id='katex") == 3
+    marker_ids = [match.group(1) for match in re.finditer(r"span id='katex(\d+)", md_output)]
+    assert len(set(marker_ids)) == 3
 
 
 def test_inline_no_svg():
@@ -193,7 +214,7 @@ def test_inline_no_svg():
     assert "<svg" not in inline_output
     assert "<img" in inline_output
 
-    result = markdown(
+    result = md.markdown(
         INLINE_MD_TMPL.format(inline_md_txt, inline_md_txt),
         extensions=['markdown_katex'],
         extension_configs={'markdown_katex': {'no_inline_svg': True}},
@@ -207,7 +228,7 @@ def test_err_msg():
     invalid_md_txt = r"$`e^{2 \pi i \xi x`$"
     md_txt         = INLINE_MD_TMPL.format(invalid_md_txt, invalid_md_txt)
     try:
-        result = markdown(md_txt, extensions=['markdown_katex'])
+        result = md.markdown(md_txt, extensions=['markdown_katex'])
         assert False, "expected an exception"
     except Exception as ex:
         err_msg = ex.args[0]
@@ -236,7 +257,7 @@ def test_html_output():
     md_text = "# Headline\n\n" + "\n".join(md_parts)
 
     extensions = DEFAULT_MKDOCS_EXTENSIONS + ['markdown_katex']
-    result     = markdown(
+    result     = md.markdown(
         md_text,
         extensions=extensions,
         extension_configs={'markdown_katex': {'no_inline_svg': True}},
