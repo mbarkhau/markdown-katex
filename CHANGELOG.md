@@ -1,6 +1,6 @@
 # Changelog for https://gitlab.com/mbarkhau/markdown-katex
 
-## v201905.0006-beta
+## v201905.0007-beta
 
  - Fix: Parsing of inline code when using multiple backticks
 
