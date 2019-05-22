@@ -127,7 +127,14 @@ def md_inline2html(inline_text: str, default_options: wrapper.Options = None) ->
 INLINE_DELIM_RE = re.compile(r"`{1,2}")
 
 
-def iter_inline_katex(line: str) -> typ.Iterable[str]:
+class InlineCodeItem(typ.NamedTuple):
+
+    inline_text   : str
+    marker        : str
+    rewritten_line: str
+
+
+def iter_inline_katex(line: str) -> typ.Iterable[InlineCodeItem]:
     # if line.startswith("4 prelude"):
     #     import pudb; pudb.set_trace()
     pos = 0
@@ -155,7 +162,11 @@ def iter_inline_katex(line: str) -> typ.Iterable[str]:
         pos = end + len(delim)
 
         inline_text = line[start - 1 : end + 2]
-        yield inline_text
+        marker_id   = id((start, end, inline_text))
+        marker      = f"<span id='katex{marker_id}'>katex{marker_id}</span>"
+        line        = line[:start - 1] + marker + line[end + 2:]
+
+        yield InlineCodeItem(inline_text, marker, line)
 
 
 class KatexExtension(Extension):
@@ -207,22 +218,20 @@ class KatexPreprocessor(Preprocessor):
                 is_in_fence = False
                 block_text  = "\n".join(block_lines)
                 del block_lines[:]
-                math_html    = md_block2html(block_text, default_options)
-                math_html_id = id(math_html)
-                marker       = f"<p id='katex{math_html_id}'>katex{math_html_id}</p>"
-                tag_text     = f"<p>{math_html}</p>"
+                math_html = md_block2html(block_text, default_options)
+                marker_id = id(block_text)
+                marker    = f"<p id='katex{marker_id}'>katex{marker_id}</p>"
+                tag_text  = f"<p>{math_html}</p>"
                 out_lines.append(marker)
                 self.ext.math_html[marker] = tag_text
             elif BLOCK_RE.match(line):
                 is_in_fence = True
                 block_lines.append(line)
             else:
-                for inline_text in iter_inline_katex(line):
-                    math_html    = md_inline2html(inline_text, default_options)
-                    math_html_id = id(math_html)
-                    marker       = f"<span id='katex{math_html_id}'>katex{math_html_id}</span>"
-                    line         = line.replace(inline_text, marker)
+                for inline_text, marker, rewritten_line in iter_inline_katex(line):
+                    math_html = md_inline2html(inline_text, default_options)
                     self.ext.math_html[marker] = math_html
+                    line = rewritten_line
 
                 out_lines.append(line)
 

@@ -94,7 +94,7 @@ INLINE_TEST_CASES = {
 
 @pytest.mark.parametrize("line, expected", INLINE_TEST_CASES.items())
 def test_inline_parsing(line, expected):
-    result = list(ext.iter_inline_katex(line))
+    result = [code_item.inline_text for code_item in ext.iter_inline_katex(line)]
     assert result == expected
 
 
@@ -144,7 +144,7 @@ BASIC_TEX = r"e^{2 \pi i \xi x}"
 INLINE_MD_TMPL = """
 # Headline
 
-prelude {0} interlude {0}  postscript.
+prelude {0} interlude {1}  postscript.
 """
 
 
@@ -153,7 +153,7 @@ def test_inline_basic():
     inline_output = ext.md_inline2html(inline_txt)
     assert '<span class="katex"' in inline_output
 
-    inline_md_txt = INLINE_MD_TMPL.format(inline_txt)
+    inline_md_txt = INLINE_MD_TMPL.format(inline_txt, inline_txt)
     result        = markdown(inline_md_txt, extensions=['markdown_katex'])
     assert '<span class="katex"' in result
     assert "Headline" in result
@@ -163,6 +163,22 @@ def test_inline_basic():
     assert result.count(inline_output) == 2
 
     assert result.strip().startswith(ext.KATEX_STYLES.strip())
+
+
+def test_inline_quoted():
+    inline_txt        = "$`" + BASIC_TEX + "`$"
+    quoted_inline_txt = "``$`" + BASIC_TEX + "`$``"
+    inline_output     = ext.md_inline2html(inline_txt)
+
+    inline_md_txt = INLINE_MD_TMPL.format(inline_txt, quoted_inline_txt)
+    result        = markdown(inline_md_txt, extensions=['markdown_katex'])
+    assert result.count(inline_output) == 1
+    assert "span id='katex" not in result
+
+    inline_md_txt = INLINE_MD_TMPL.format(quoted_inline_txt, inline_txt)
+    result        = markdown(inline_md_txt, extensions=['markdown_katex'])
+    assert result.count(inline_output) == 1
+    assert "span id='katex" not in result
 
 
 def test_inline_no_svg():
@@ -178,7 +194,7 @@ def test_inline_no_svg():
     assert "<img" in inline_output
 
     result = markdown(
-        INLINE_MD_TMPL.format(inline_md_txt),
+        INLINE_MD_TMPL.format(inline_md_txt, inline_md_txt),
         extensions=['markdown_katex'],
         extension_configs={'markdown_katex': {'no_inline_svg': True}},
     )
@@ -189,7 +205,7 @@ def test_inline_no_svg():
 
 def test_err_msg():
     invalid_md_txt = r"$`e^{2 \pi i \xi x`$"
-    md_txt         = INLINE_MD_TMPL.format(invalid_md_txt)
+    md_txt         = INLINE_MD_TMPL.format(invalid_md_txt, invalid_md_txt)
     try:
         result = markdown(md_txt, extensions=['markdown_katex'])
         assert False, "expected an exception"
