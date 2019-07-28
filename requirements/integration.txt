@@ -7,6 +7,10 @@
 #
 # No dependencies required for production should be listed here.
 
+# http://www.pydocstyle.org/en/4.0.0/release_notes.html
+# Support for Python 2.x and PyPy has been dropped (#340).
+pydocstyle<4
+
 flake8
 flake8-bugbear
 flake8-docstrings
