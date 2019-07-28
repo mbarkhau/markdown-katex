@@ -52,7 +52,7 @@ setuptools.setup(
     author="Manuel Barkhau",
     author_email="mbarkhau@gmail.com",
     url="https://gitlab.com/mbarkhau/markdown-katex",
-    version="201905.7b0",
+    version="201907.8b0",
     keywords="markdown katex extension",
     description="katex extension for Python Markdown",
     long_description=long_description,
