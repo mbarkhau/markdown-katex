@@ -8,7 +8,7 @@
 # should see if there is a conda package that suits your needs.
 
 Markdown
-typing
+typing;python_version<"3.5"
 pathlib2
 # setuptools is required for pkg_resources
 setuptools
