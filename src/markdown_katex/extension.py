@@ -7,6 +7,7 @@ import re
 import json
 import base64
 import logging
+import hashlib
 import typing as typ
 
 from markdown.extensions import Extension
@@ -40,6 +41,11 @@ KATEX_STYLES = """
 
 
 B64IMG_TMPL = '<img src="data:image/svg+xml;base64,{img_text}"/>'
+
+
+def make_marker_id(text: str) -> str:
+    data = text.encode("utf-8")
+    return hashlib.md5(data).hexdigest()
 
 
 def svg2img(html: str) -> str:
@@ -135,8 +141,6 @@ class InlineCodeItem(typ.NamedTuple):
 
 
 def iter_inline_katex(line: str) -> typ.Iterable[InlineCodeItem]:
-    # if line.startswith("4 prelude"):
-    #     import pudb; pudb.set_trace()
     pos = 0
     while True:
         inline_match_start = INLINE_DELIM_RE.search(line, pos)
@@ -160,7 +164,7 @@ def iter_inline_katex(line: str) -> typ.Iterable[InlineCodeItem]:
             continue
 
         inline_text = line[start - 1 : end + 2]
-        marker_id   = id(inline_text)
+        marker_id   = make_marker_id("inline" + inline_text)
         marker      = f"<span id='katex{marker_id}'>katex{marker_id}</span>"
         line        = line[: start - 1] + marker + line[end + 2 :]
 
@@ -219,7 +223,7 @@ class KatexPreprocessor(Preprocessor):
                 block_text  = "\n".join(block_lines)
                 del block_lines[:]
                 math_html = md_block2html(block_text, default_options)
-                marker_id = id(block_text)
+                marker_id = make_marker_id("block" + block_text)
                 marker    = f"<p id='katex{marker_id}'>katex{marker_id}</p>"
                 tag_text  = f"<p>{math_html}</p>"
                 out_lines.append(marker)

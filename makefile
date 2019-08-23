@@ -114,7 +114,7 @@ build/envs.txt: requirements/conda.txt
 	mv build/envs.txt.tmp build/envs.txt;
 
 
-build/deps.txt: build/envs.txt requirements/*.txt
+build/deps.txt: build/envs.txt requirements/*.txt scripts/*.sh
 	@mkdir -p build/;
 
 	@SUPPORTED_PYTHON_VERSIONS="$(SUPPORTED_PYTHON_VERSIONS)" \

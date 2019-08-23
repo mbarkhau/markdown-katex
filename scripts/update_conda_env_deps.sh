@@ -15,7 +15,7 @@ for i in ${!env_py_paths[@]}; do
     # against the installed modules.
     ${env_path_python} -m pip install \
         --disable-pip-version-check --upgrade --quiet \
-        pytest;
+        pytest beautifulsoup4;
 
     ${env_path_python} -m pip install \
         --disable-pip-version-check --upgrade --quiet \

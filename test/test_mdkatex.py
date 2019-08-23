@@ -1,8 +1,10 @@
+import io
 import re
 import pytest
 import tempfile
 import pathlib2 as pl
 
+import bs4
 import markdown as md
 
 import markdown_katex
@@ -183,12 +185,8 @@ def test_inline_quoted():
 
 
 def test_marker_uniqueness():
-    inline_txt_1 = "$`a+b`$"
-    inline_txt_2 = "$``c+d``$"
-    inline_txt_3 = "$``a+b``$"
-
     inline_md_txt = "\n\n".join(
-        ["start", inline_txt_1, "interlude", inline_txt_2, "interlude", inline_txt_3, "end"]
+        ["start", "$`a+b`$", "interlude", "$``c+d``$", "interlude", "$``a+b``$", "end"]
     )
     md_ctx  = md.Markdown(extensions=['markdown_katex'])
     preproc = next(
@@ -199,7 +197,37 @@ def test_marker_uniqueness():
 
     assert md_output.count("span id='katex") == 3
     marker_ids = [match.group(1) for match in re.finditer(r"span id='katex(\d+)", md_output)]
-    assert len(set(marker_ids)) == 3
+    assert len(set(marker_ids)) == 2
+
+
+def test_svg_uniqueness():
+    md_text = "\n\n".join(
+        [
+            "start",
+            "$`a+b`$",
+            "interlude",
+            "$`c+d`$",
+            "interlude",
+            "```math\na+b\n```",
+            "interlude",
+            "```math\ne+f\n```",
+            "interlude",
+            "```math\na+b\n```",
+            "interlude",
+            "$`a+b`$",
+            "end",
+        ]
+    )
+    html_output = md.markdown(md_text, extensions=['markdown_katex'])
+
+    fobj = io.StringIO(html_output)
+    soup = bs4.BeautifulSoup(fobj, "html.parser")
+
+    results = set()
+    for tag in soup.find_all("span", attrs={'class': "katex"}):
+        results.add(str(tag))
+
+    assert len(results) == 4
 
 
 def test_inline_no_svg():
