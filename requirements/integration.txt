@@ -28,6 +28,7 @@ md-toc
 straitjacket
 pycalver
 lib3to6
+beautifulsoup4
 
 # needed for mypy coverage report
 lxml
