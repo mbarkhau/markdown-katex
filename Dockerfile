@@ -16,4 +16,4 @@ ADD makefile.extra.make makefile.extra.make
 
 ENV PYTHONPATH="src/:vendor/"
 
-CMD make serve
+CMD make lint test

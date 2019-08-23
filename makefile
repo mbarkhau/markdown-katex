@@ -49,7 +49,7 @@ CONDA_ENV_PATHS := \
 # envname/bin/pypy3
 CONDA_ENV_BIN_PYTHON_PATHS := \
 	$(shell echo "$(CONDA_ENV_PATHS)" \
-	| sed 's!\(_py[[:digit:]]\+\)!\1/bin/python!g' \
+	| sed 's!\(_py[[:digit:]]\{1,\}\)!\1/bin/python!g' \
 	| sed 's!\(_pypy2[[:digit:]]\)!\1/bin/pypy!g' \
 	| sed 's!\(_pypy3[[:digit:]]\)!\1/bin/pypy3!g' \
 )
@@ -76,6 +76,8 @@ DOCKER_BASE_IMAGE := registry.gitlab.com/mbarkhau/markdown-katex/base
 
 GIT_HEAD_REV = $(shell git rev-parse --short HEAD)
 DOCKER_IMAGE_VERSION = $(shell date -u +'%Y%m%dt%H%M%S')_$(GIT_HEAD_REV)
+
+MAX_LINE_LEN = $(shell grep 'max-line-length' setup.cfg | sed 's![^0-9]\{1,\}!!')
 
 
 build/envs.txt: requirements/conda.txt
@@ -307,6 +309,15 @@ lint:
 	@$(DEV_ENV)/bin/flake8 src/
 	@printf "\e[1F\e[9C ok\n"
 
+	@printf "sjfmt ..\n"
+	@$(DEV_ENV)/bin/sjfmt \
+		--target-version=py36 \
+		--skip-string-normalization \
+		--line-length=$(MAX_LINE_LEN) \
+		--check \
+		src/ test/ 2>&1 | sed "/All done/d" | sed "/left unchanged/d"
+	@printf "\e[1F\e[9C ok\n"
+
 
 ## Run mypy type checker
 .PHONY: mypy
@@ -379,9 +390,9 @@ test:
 .PHONY: fmt
 fmt:
 	@$(DEV_ENV)/bin/sjfmt \
-		--target-version py36 \
+		--target-version=py36 \
 		--skip-string-normalization \
-		--line-length=100 \
+		--line-length=$(MAX_LINE_LEN) \
 		src/ test/
 
 
@@ -441,7 +452,6 @@ ipy:
 ## Like `make test`, but with debug parameters
 .PHONY: devtest
 devtest:
-	@rm -rf ".pytest_cache";
 	@rm -rf "src/__pycache__";
 	@rm -rf "test/__pycache__";
 
@@ -453,6 +463,7 @@ ifdef FILTER
 		--verbose \
 		--capture=no \
 		--exitfirst \
+		--failed-first \
 		-k $(FILTER) \
 		test/ src/;
 else
@@ -463,10 +474,10 @@ else
 		--verbose \
 		--capture=no \
 		--exitfirst \
+		--failed-first \
 		test/ src/;
 endif
 
-	@rm -rf ".pytest_cache";
 	@rm -rf "src/__pycache__";
 	@rm -rf "test/__pycache__";
 
