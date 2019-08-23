@@ -1,5 +1,10 @@
 # Changelog for https://gitlab.com/mbarkhau/markdown-katex
 
+## v201908.0009-beta
+
+ - Fix #1: Wrong formulas are rendered when multiple formulas are in one doc.
+
+
 ## v201907.0008-beta
 
  - Fix: don't require typing package for py<35
