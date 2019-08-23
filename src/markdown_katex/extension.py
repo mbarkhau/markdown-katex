@@ -141,8 +141,6 @@ class InlineCodeItem(typ.NamedTuple):
 
 
 def iter_inline_katex(line: str) -> typ.Iterable[InlineCodeItem]:
-    # if line.startswith("4 prelude"):
-    #     import pudb; pudb.set_trace()
     pos = 0
     while True:
         inline_match_start = INLINE_DELIM_RE.search(line, pos)
