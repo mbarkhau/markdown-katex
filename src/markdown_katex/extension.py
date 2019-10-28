@@ -248,7 +248,10 @@ class KatexPostprocessor(Postprocessor):
         self.ext: KatexExtension = ext
 
     def run(self, text: str) -> str:
-        if self.ext.math_html:
+        if not any(marker in text for marker in self.ext.math_html):
+            return text
+
+        if KATEX_STYLES not in text:
             text = KATEX_STYLES + text
 
         for marker, html in self.ext.math_html.items():
