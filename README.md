@@ -1,7 +1,18 @@
+
 # [markdown-katex][repo_ref]
 
 This is an extension for [Python Markdown](https://python-markdown.github.io/)
 which adds [KaTeX](https://katex.org/) support.
+
+    ```math
+    f(x) = \int_{-\infty}^\infty
+    \hat f(\xi)\,e^{2 \pi i \xi x}
+    \,d\xi
+    ```
+
+<p align="center">
+<img src="https://mbarkhau.keybase.pub/static/markdown-katex-example.png" height=128>
+</p>
 
 Project/Repo:
 
