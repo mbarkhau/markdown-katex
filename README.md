@@ -80,6 +80,12 @@ Hopefully other renderers will also adopt support for this syntax as:
  2. The false positive rate for existing Markdown documents is negligible (ie. existing alternate use of &dollar;&#96; syntax is minimal to non-existent).
 
 
+## Options
+
+ - `no_inline_svg`: Replace inline `<svg>` with `<img data:image/svg+xml;base64..">` tags.
+ - `insert_fonts_css`: Insert font loading stylesheet (default: True).
+
+
 ## Development/Testing
 
 ```bash
@@ -99,6 +105,7 @@ In your `mkdocs.yml` add this to markdown_extensions.
 markdown_extensions:
   - markdown_katex:
       no_inline_svg: True
+      insert_fonts_css: True
 ```
 
 

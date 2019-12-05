@@ -1,5 +1,11 @@
 # Changelog for https://gitlab.com/mbarkhau/markdown-katex
 
+## v201912.0011-beta
+
+ - Add option `insert_fonts_css`
+ - Document options
+
+
 ## v201910.0010-beta
 
  - Add more prominent example to README.md

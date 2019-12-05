@@ -230,7 +230,7 @@ def test_svg_uniqueness():
     assert len(results) == 4
 
 
-def test_inline_no_svg():
+def test_no_inline_svg():
     inline_md_txt = "$`" + TEX_WITH_SVG_OUTPUT + "`$"
     inline_output = ext.md_inline2html(inline_md_txt)
     assert '<span class="katex"' in inline_output
@@ -252,11 +252,26 @@ def test_inline_no_svg():
     assert "<img" in result
 
 
+def test_insert_fonts_css():
+    result = md.markdown(
+        BASIC_BLOCK_TXT,
+        extensions=['markdown_katex'],
+        extension_configs={'markdown_katex': {'insert_fonts_css': True}},
+    )
+    assert result.startswith(ext.KATEX_STYLES.strip())
+    result = md.markdown(
+        BASIC_BLOCK_TXT,
+        extensions=['markdown_katex'],
+        extension_configs={'markdown_katex': {'insert_fonts_css': False}},
+    )
+    assert not result.startswith(ext.KATEX_STYLES.strip())
+
+
 def test_err_msg():
     invalid_md_txt = r"$`e^{2 \pi i \xi x`$"
     md_txt         = INLINE_MD_TMPL.format(invalid_md_txt, invalid_md_txt)
     try:
-        result = md.markdown(md_txt, extensions=['markdown_katex'])
+        md.markdown(md_txt, extensions=['markdown_katex'])
         assert False, "expected an exception"
     except Exception as ex:
         err_msg = ex.args[0]

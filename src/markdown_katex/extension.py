@@ -87,9 +87,14 @@ def _clean_block_text(block_text: str) -> str:
 
 def tex2html(tex: str, options: wrapper.Options = None) -> str:
     if options:
-        no_inline_svg = options.pop("no_inline_svg", False)
+        no_inline_svg = options.get("no_inline_svg", False)
     else:
         no_inline_svg = False
+
+    # These are options of the extension, not of the katex-cli program.
+    if options:
+        options.pop('no_inline_svg'   , None)
+        options.pop('insert_fonts_css', None)
 
     result = wrapper.tex2html(tex, options)
     if no_inline_svg:
@@ -175,9 +180,22 @@ def iter_inline_katex(line: str) -> typ.Iterable[InlineCodeItem]:
 
 class KatexExtension(Extension):
     def __init__(self, **kwargs) -> None:
-        self.config = {'no_inline_svg': ["", "Replace inline <svg> with <img> tags."]}
+        self.config = {
+            'no_inline_svg'   : ["", "Replace inline <svg> with <img> tags."],
+            'insert_fonts_css': ["", "Insert font loading stylesheet."],
+        }
         for name, options_text in wrapper.parse_options().items():
             self.config[name] = ["", options_text]
+
+        self.options: wrapper.Options = {}
+        for name in self.config.keys():
+            if name in kwargs:
+                val = kwargs[name]
+            else:
+                val = self.getConfig(name, "")
+
+            if val != "":
+                self.options[name] = val
 
         self.math_html: typ.Dict[str, str] = {}
         super(KatexExtension, self).__init__(**kwargs)
@@ -203,12 +221,6 @@ class KatexPreprocessor(Preprocessor):
         self.ext: KatexExtension = ext
 
     def run(self, lines: typ.List[str]) -> typ.List[str]:
-        default_options: wrapper.Options = {}
-        for name in self.ext.config.keys():
-            val = self.ext.getConfig(name, "")
-            if val != "":
-                default_options[name] = val
-
         is_in_fence = False
         block_lines: typ.List[str] = []
         out_lines  : typ.List[str] = []
@@ -222,7 +234,7 @@ class KatexPreprocessor(Preprocessor):
                 is_in_fence = False
                 block_text  = "\n".join(block_lines)
                 del block_lines[:]
-                math_html = md_block2html(block_text, default_options)
+                math_html = md_block2html(block_text, self.ext.options)
                 marker_id = make_marker_id("block" + block_text)
                 marker    = f"<p id='katex{marker_id}'>katex{marker_id}</p>"
                 tag_text  = f"<p>{math_html}</p>"
@@ -233,7 +245,7 @@ class KatexPreprocessor(Preprocessor):
                 block_lines.append(line)
             else:
                 for inline_code in iter_inline_katex(line):
-                    math_html = md_inline2html(inline_code.inline_text, default_options)
+                    math_html = md_inline2html(inline_code.inline_text, self.ext.options)
                     self.ext.math_html[inline_code.marker] = math_html
                     line = inline_code.rewritten_line
 
@@ -251,7 +263,12 @@ class KatexPostprocessor(Postprocessor):
         if not any(marker in text for marker in self.ext.math_html):
             return text
 
-        if KATEX_STYLES not in text:
+        if self.ext.options:
+            insert_fonts_css = self.ext.options.get("insert_fonts_css", True)
+        else:
+            insert_fonts_css = True
+
+        if insert_fonts_css and KATEX_STYLES not in text:
             text = KATEX_STYLES + text
 
         for marker, html in self.ext.math_html.items():
