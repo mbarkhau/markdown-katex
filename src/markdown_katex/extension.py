@@ -254,6 +254,16 @@ class KatexPreprocessor(Preprocessor):
         return out_lines
 
 
+# NOTE (mb):
+#   Q: Why this business with the Postprocessor? Why
+#   not just do `out_lines.append(tag_text)` and save
+#   the hassle of `self.ext.math_html[marker] = tag_text` ?
+#   A: Maybe there are other processors that can't be
+#   trusted to leave the inserted markup alone. Maybe
+#   the inserted markup could be incorrectly parsed as
+#   valid markdown.
+
+
 class KatexPostprocessor(Postprocessor):
     def __init__(self, md, ext: KatexExtension) -> None:
         super(KatexPostprocessor, self).__init__(md)
