@@ -361,6 +361,7 @@ test:
 		--verbose \
 		--cov-report html \
 		--cov-report term \
+		-k "$${PYTEST_FILTER}" \
 		$(shell cd src/ && ls -1 */__init__.py | awk '{ sub(/\/__init__.py/, "", $$1); print "--cov "$$1 }') \
 		test/ src/;
 
@@ -455,7 +456,6 @@ devtest:
 	@rm -rf "src/__pycache__";
 	@rm -rf "test/__pycache__";
 
-ifdef FILTER
 	ENV=$${ENV-dev} PYTHONPATH=src/:vendor/:$$PYTHONPATH \
 		$(DEV_ENV_PY) -m pytest -v \
 		--doctest-modules \
@@ -464,19 +464,8 @@ ifdef FILTER
 		--capture=no \
 		--exitfirst \
 		--failed-first \
-		-k $(FILTER) \
+		-k "$${PYTEST_FILTER}" \
 		test/ src/;
-else
-	ENV=$${ENV-dev} PYTHONPATH=src/:vendor/:$$PYTHONPATH \
-		$(DEV_ENV_PY) -m pytest -v \
-		--doctest-modules \
-		--no-cov \
-		--verbose \
-		--capture=no \
-		--exitfirst \
-		--failed-first \
-		test/ src/;
-endif
 
 	@rm -rf "src/__pycache__";
 	@rm -rf "test/__pycache__";
