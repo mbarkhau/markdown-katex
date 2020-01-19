@@ -112,11 +112,13 @@ def test_tex2html():
     for formula in markdown_katex.TEST_FORMULAS:
         md_text   = "```math\n{0}\n```".format(formula)
         html_text = ext.md_block2html(md_text)
-        assert '<span class="katex-display"' in html_text
+        assert html_text.startswith('<span class="katex-display"')
+        assert html_text.endswith("</span>")
 
         md_text   = "$`{0}`$".format(formula)
         html_text = ext.md_inline2html(md_text)
-        assert '<span class="katex"' in html_text
+        assert html_text.startswith('<span class="katex"')
+        assert html_text.endswith("</span>")
 
 
 def test_basic_block():
@@ -214,11 +216,15 @@ def test_svg_uniqueness():
             "interlude",
             "```math\na+b\n```",
             "interlude",
-            "$`a+b`$",
+            "prefix $`a+b`$ suffix",
             "end",
         ]
     )
     html_output = md.markdown(md_text, extensions=['markdown_katex'])
+
+    # check whitespace
+    assert "prefix <span " in html_output
+    assert "</span> suffix" in html_output
 
     fobj = io.StringIO(html_output)
     soup = bs4.BeautifulSoup(fobj, "html.parser")

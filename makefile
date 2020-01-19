@@ -456,7 +456,10 @@ devtest:
 	@rm -rf "src/__pycache__";
 	@rm -rf "test/__pycache__";
 
-	ENV=$${ENV-dev} PYTHONPATH=src/:vendor/:$$PYTHONPATH \
+	ENABLE_BACKTRACE=0 \
+		ENV=$${ENV-dev} \
+		PYTEST_SKIP=$${PYTEST_SKIP:-slow} \
+		PYTHONPATH=src/:vendor/:$$PYTHONPATH \
 		$(DEV_ENV_PY) -m pytest -v \
 		--doctest-modules \
 		--no-cov \

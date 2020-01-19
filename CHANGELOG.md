@@ -1,5 +1,10 @@
 # Changelog for https://gitlab.com/mbarkhau/markdown-katex
 
+## v202001.0012-beta
+
+ - Fix: Remove extraneous whitespace to work better with whitespace: pre.
+
+
 ## v201912.0011-beta
 
  - Add option `insert_fonts_css`

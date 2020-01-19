@@ -175,7 +175,7 @@ def tex2html(tex: str, options: Options = None) -> str:
 
     _cleanup_tmp_dir()
 
-    return result
+    return result.strip()
 
 
 def _cleanup_tmp_dir() -> None:
