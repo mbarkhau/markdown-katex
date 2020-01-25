@@ -221,18 +221,21 @@ class KatexPreprocessor(Preprocessor):
         self.ext: KatexExtension = ext
 
     def run(self, lines: typ.List[str]) -> typ.List[str]:
-        is_in_fence = False
+        is_in_fence          = False
+        expected_close_fence = "```"
+
         block_lines: typ.List[str] = []
         out_lines  : typ.List[str] = []
 
         for line in lines:
             if is_in_fence:
                 block_lines.append(line)
-                if not ("```" in line or "~~~" in line):
+                is_ending_fence = line.strip() == expected_close_fence
+                if not is_ending_fence:
                     continue
 
                 is_in_fence = False
-                block_text  = "\n".join(block_lines)
+                block_text  = "\n".join(block_lines).rstrip()
                 del block_lines[:]
                 math_html = md_block2html(block_text, self.ext.options)
                 marker_id = make_marker_id("block" + block_text)
@@ -240,16 +243,19 @@ class KatexPreprocessor(Preprocessor):
                 tag_text  = f"<p>{math_html}</p>"
                 out_lines.append(marker)
                 self.ext.math_html[marker] = tag_text
-            elif BLOCK_RE.match(line):
-                is_in_fence = True
-                block_lines.append(line)
             else:
-                for inline_code in iter_inline_katex(line):
-                    math_html = md_inline2html(inline_code.inline_text, self.ext.options)
-                    self.ext.math_html[inline_code.marker] = math_html
-                    line = inline_code.rewritten_line
+                fence_match = BLOCK_RE.match(line)
+                if fence_match:
+                    is_in_fence          = True
+                    expected_close_fence = fence_match.group(1)
+                    block_lines.append(line)
+                else:
+                    for inline_code in iter_inline_katex(line):
+                        math_html = md_inline2html(inline_code.inline_text, self.ext.options)
+                        self.ext.math_html[inline_code.marker] = math_html
+                        line = inline_code.rewritten_line
 
-                out_lines.append(line)
+                    out_lines.append(line)
 
         return out_lines
 

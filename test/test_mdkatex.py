@@ -170,6 +170,14 @@ def test_inline_basic():
     assert result.strip().startswith(ext.KATEX_STYLES.strip())
 
 
+def test_trailing_whitespace():
+    default_output = ext.md_block2html(BASIC_BLOCK_TXT)
+
+    trailing_space_result = md.markdown(BASIC_BLOCK_TXT + "  ", extensions=['markdown_katex'])
+    assert default_output in trailing_space_result
+    assert "```" not in trailing_space_result
+
+
 def test_inline_quoted():
     inline_txt        = "$`" + BASIC_TEX + "`$"
     quoted_inline_txt = "``$`" + BASIC_TEX + "`$``"

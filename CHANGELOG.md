@@ -1,5 +1,10 @@
 # Changelog for https://gitlab.com/mbarkhau/markdown-katex
 
+## v202001.0013-beta
+
+ - Fix: Ignore trailing whitespace after closing fence.
+
+
 ## v202001.0012-beta
 
  - Fix: Remove extraneous whitespace to work better with whitespace: pre.
