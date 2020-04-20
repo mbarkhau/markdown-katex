@@ -1,5 +1,8 @@
 import io
 import re
+import textwrap
+from xml.etree.ElementTree import XML
+
 import pytest
 import tempfile
 import pathlib2 as pl
@@ -322,3 +325,29 @@ def test_html_output():
     tmp_file = TMP_DIR / "test_output.html"
     with tmp_file.open(mode="w", encoding="utf-8") as fh:
         fh.write(result)
+
+
+def test_valid_xml():
+    md_text = textwrap.dedent(
+        r"""
+        Look at these formulas:
+    
+        ```math
+        f(x) = 0
+        ```
+        """
+    )
+
+    extensions = DEFAULT_MKDOCS_EXTENSIONS + ['markdown_katex']
+    result     = md.markdown(
+        md_text,
+        extensions=extensions,
+        extension_configs={'markdown_katex': {'no_inline_svg': True}},
+    )
+
+    # avoid xml.etree.ElementTree.ParseError: junk after document element:
+    # XML expects a single root object containing all the others
+    result = "<div>" + result + "</div>"
+
+    # assert no exception
+    XML(result)
