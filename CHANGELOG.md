@@ -1,5 +1,10 @@
 # Changelog for https://gitlab.com/mbarkhau/markdown-katex
 
+## v202004.0014-beta
+
+ - Fix: [Link tag not properly closed](https://gitlab.com/mbarkhau/markdown-katex/-/issues/4)
+
+
 ## v202001.0013-beta
 
  - Fix: Ignore trailing whitespace after closing fence.
