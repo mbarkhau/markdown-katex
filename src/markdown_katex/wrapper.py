@@ -103,7 +103,8 @@ def _iter_output_lines(buf: typ.IO[bytes]) -> typ.Iterable[bytes]:
             return
 
 
-def read_output(buf: typ.IO[bytes]) -> str:
+def read_output(buf: typ.Optional[typ.IO[bytes]]) -> str:
+    assert buf is not None
     return b"".join(_iter_output_lines(buf)).decode("utf-8")
 
 
