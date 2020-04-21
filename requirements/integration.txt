@@ -20,6 +20,7 @@ flake8-comprehensions
 flake8-junit-report
 pylint
 mypy
+isort
 
 # http://doc.pytest.org/en/latest/py27-py34-deprecation.html
 # The pytest 4.6 series will be the last to support Python 2.7

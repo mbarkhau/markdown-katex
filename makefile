@@ -86,13 +86,13 @@ build/envs.txt: requirements/conda.txt
 	@if [[ ! -f $(CONDA_BIN) ]]; then \
 		echo "installing miniconda ..."; \
 		if [[ $(PLATFORM) == "Linux" ]]; then \
-			curl "https://repo.continuum.io/miniconda/Miniconda3-latest-Linux-x86_64.sh" \
+			curl "https://repo.continuum.io/miniconda/Miniconda3-latest-Linux-x86_64.sh" --location \
 				> build/miniconda3.sh; \
 		elif [[ $(PLATFORM) == "MINGW64_NT-10.0" ]]; then \
-			curl "https://repo.continuum.io/miniconda/Miniconda3-latest-Linux-x86_64.sh" \
+			curl "https://repo.continuum.io/miniconda/Miniconda3-latest-Linux-x86_64.sh" --location \
 				> build/miniconda3.sh; \
 		elif [[ $(PLATFORM) == "Darwin" ]]; then \
-			curl "https://repo.continuum.io/miniconda/Miniconda3-latest-MacOSX-x86_64.sh" \
+			curl "https://repo.continuum.io/miniconda/Miniconda3-latest-MacOSX-x86_64.sh" --location \
 				> build/miniconda3.sh; \
 		fi; \
 		bash build/miniconda3.sh -b -p $(CONDA_ROOT); \
@@ -302,11 +302,18 @@ git_hooks:
 ## -- Integration --
 
 
-## Run flake8 linter
+## Run flake8 linter and check for fmt
 .PHONY: lint
 lint:
-	@printf "flake8 ..\n"
-	@$(DEV_ENV)/bin/flake8 src/
+	@printf "isort ..\n"
+	@$(DEV_ENV)/bin/isort \
+		--check-only \
+		--force-single-line-imports \
+		--length-sort \
+		--recursive \
+		--line-width=$(MAX_LINE_LEN) \
+		--project $(PKG_NAME) \
+		src/ test/
 	@printf "\e[1F\e[9C ok\n"
 
 	@printf "sjfmt ..\n"
@@ -318,6 +325,10 @@ lint:
 		src/ test/ 2>&1 | sed "/All done/d" | sed "/left unchanged/d"
 	@printf "\e[1F\e[9C ok\n"
 
+	@printf "flake8 ..\n"
+	@$(DEV_ENV)/bin/flake8 src/
+	@printf "\e[1F\e[9C ok\n"
+
 
 ## Run mypy type checker
 .PHONY: mypy
@@ -327,6 +338,7 @@ mypy:
 	@printf "mypy ....\n"
 	@MYPYPATH=stubs/:vendor/ $(DEV_ENV_PY) -m mypy \
 		--html-report mypycov \
+		--no-error-summary \
 		src/ | sed "/Generated HTML report/d"
 	@printf "\e[1F\e[9C ok\n"
 
@@ -390,11 +402,19 @@ test:
 ## Run code formatter on src/ and test/
 .PHONY: fmt
 fmt:
+	@$(DEV_ENV)/bin/isort \
+		--force-single-line-imports \
+		--length-sort \
+		--recursive \
+		--line-width=$(MAX_LINE_LEN) \
+		--project $(PKG_NAME) \
+		src/ test/;
+
 	@$(DEV_ENV)/bin/sjfmt \
 		--target-version=py36 \
 		--skip-string-normalization \
 		--line-length=$(MAX_LINE_LEN) \
-		src/ test/
+		src/ test/;
 
 
 
