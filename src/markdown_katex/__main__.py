@@ -29,7 +29,7 @@ HTML_TEMPLATE = """
   <link rel="stylesheet"
     href="https://cdn.jsdelivr.net/npm/katex@0.10.2/dist/katex.css"
     integrity="sha256-SSjvSe9BDSZMUczwnbB1ywCyIk2XaNly9nn6yRm6WJo="
-    crossorigin="anonymous">
+    crossorigin="anonymous" />
   <style type="text/css">
     body{background: white; }
   </style>
