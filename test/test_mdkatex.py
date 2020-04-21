@@ -1,14 +1,13 @@
 import io
 import re
+import tempfile
 import textwrap
 from xml.etree.ElementTree import XML
 
-import pytest
-import tempfile
-import pathlib2 as pl
-
 import bs4
+import pytest
 import markdown as md
+import pathlib2 as pl
 
 import markdown_katex
 import markdown_katex.wrapper as wrp

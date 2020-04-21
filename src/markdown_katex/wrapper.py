@@ -12,17 +12,17 @@ import os
 import re
 import time
 import signal
-import hashlib
-import tempfile
-import platform
 import typing as typ
-import pathlib2 as pl
+import hashlib
+import platform
+import tempfile
 import subprocess as sp
 
+import pathlib2 as pl
 
 SIG_NAME_BY_NUM = {
     k: v
-    for v, k in reversed(sorted(signal.__dict__.items()))
+    for v, k in sorted(signal.__dict__.items(), reverse=True)
     if v.startswith('SIG') and not v.startswith('SIG_')
 }
 

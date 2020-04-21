@@ -12,7 +12,6 @@ import subprocess as sp
 
 import markdown_katex
 
-
 # To enable pretty tracebacks:
 #   echo "export ENABLE_BACKTRACE=1;" >> ~/.bashrc
 if os.environ.get('ENABLE_BACKTRACE') == '1':

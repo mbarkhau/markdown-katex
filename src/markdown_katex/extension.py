@@ -6,16 +6,15 @@
 import re
 import json
 import base64
-import logging
-import hashlib
 import typing as typ
+import hashlib
+import logging
 
 from markdown.extensions import Extension
 from markdown.preprocessors import Preprocessor
 from markdown.postprocessors import Postprocessor
 
 import markdown_katex.wrapper as wrapper
-
 
 log = logging.getLogger(__name__)
 

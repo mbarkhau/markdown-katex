@@ -12,8 +12,9 @@ uses KaTeX to generate html from tex.
 
 __version__ = "v202001.0013-beta"
 
+from markdown_katex.wrapper import tex2html
+from markdown_katex.wrapper import get_bin_path
 from markdown_katex.extension import KatexExtension
-from markdown_katex.wrapper import tex2html, get_bin_path
 
 
 def makeExtension(**kwargs) -> KatexExtension:
