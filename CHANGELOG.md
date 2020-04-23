@@ -1,8 +1,13 @@
 # Changelog for https://gitlab.com/mbarkhau/markdown-katex
 
+## v202004.0015-beta
+
+ - Fix #3: [Inline math inside block](https://gitlab.com/mbarkhau/markdown-katex/-/issues/3)
+
+
 ## v202004.0014-beta
 
- - Fix: [Link tag not properly closed](https://gitlab.com/mbarkhau/markdown-katex/-/issues/4)
+ - Fix #4: [Link tag not properly closed](https://gitlab.com/mbarkhau/markdown-katex/-/issues/4)
 
 
 ## v202001.0013-beta
