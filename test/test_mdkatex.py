@@ -77,9 +77,9 @@ def test_svg2img(katex_output):
 
 
 def test_regexp():
-    assert ext.BLOCK_RE.match(BASIC_BLOCK_TXT)
+    assert ext.MATH_FENCE_RE.match(BASIC_BLOCK_TXT)
     alt_block_text = BASIC_BLOCK_TXT.replace("```", "~~~")
-    assert ext.BLOCK_RE.match(alt_block_text)
+    assert ext.MATH_FENCE_RE.match(alt_block_text)
 
 
 INLINE_TEST_CASES = {
