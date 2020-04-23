@@ -330,7 +330,7 @@ def test_valid_xml():
     md_text = textwrap.dedent(
         r"""
         Look at these formulas:
-    
+
         ```math
         f(x) = 0
         ```
@@ -350,3 +350,22 @@ def test_valid_xml():
 
     # assert no exception
     XML(result)
+
+
+def test_ignore_in_non_math_block():
+    md_text = textwrap.dedent(
+        r"""
+        Look at these formulas:
+
+        ```
+        This math is in a block $`a^2+b^2=c^2`$.
+        ```
+        """
+    )
+    extensions = DEFAULT_MKDOCS_EXTENSIONS + ['markdown_katex']
+    result     = md.markdown(
+        md_text,
+        extensions=extensions,
+        extension_configs={'markdown_katex': {'no_inline_svg': True}},
+    )
+    assert "katex" not in result

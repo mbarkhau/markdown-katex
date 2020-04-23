@@ -211,7 +211,8 @@ class KatexExtension(Extension):
         md.registerExtension(self)
 
 
-BLOCK_RE = re.compile(r"^(```|~~~)math")
+FENCE_RE      = re.compile(r"^(```|~~~)")
+MATH_FENCE_RE = re.compile(r"^(```|~~~)math")
 
 
 class KatexPreprocessor(Preprocessor):
@@ -220,6 +221,7 @@ class KatexPreprocessor(Preprocessor):
         self.ext: KatexExtension = ext
 
     def run(self, lines: typ.List[str]) -> typ.List[str]:
+        is_in_math_fence     = False
         is_in_fence          = False
         expected_close_fence = "```"
 
@@ -228,13 +230,18 @@ class KatexPreprocessor(Preprocessor):
 
         for line in lines:
             if is_in_fence:
+                out_lines.append(line)
+                is_ending_fence = line.strip() == expected_close_fence
+                if is_ending_fence:
+                    is_in_fence = False
+            elif is_in_math_fence:
                 block_lines.append(line)
                 is_ending_fence = line.strip() == expected_close_fence
                 if not is_ending_fence:
                     continue
 
-                is_in_fence = False
-                block_text  = "\n".join(block_lines).rstrip()
+                is_in_math_fence = False
+                block_text       = "\n".join(block_lines).rstrip()
                 del block_lines[:]
                 math_html = md_block2html(block_text, self.ext.options)
                 marker_id = make_marker_id("block" + block_text)
@@ -243,8 +250,13 @@ class KatexPreprocessor(Preprocessor):
                 out_lines.append(marker)
                 self.ext.math_html[marker] = tag_text
             else:
-                fence_match = BLOCK_RE.match(line)
-                if fence_match:
+                math_fence_match = MATH_FENCE_RE.match(line)
+                fence_match      = FENCE_RE.match(line)
+                if math_fence_match:
+                    is_in_math_fence     = True
+                    expected_close_fence = math_fence_match.group(1)
+                    block_lines.append(line)
+                elif fence_match:
                     is_in_fence          = True
                     expected_close_fence = fence_match.group(1)
                     block_lines.append(line)
