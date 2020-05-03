@@ -253,7 +253,6 @@ def _parse_options_help_text(help_text: str) -> OptionsHelp:
     options.pop("input"       , None)
     options.pop("output"      , None)
     options.pop("display-mode", None)
-    options.pop("macro-file"  , None)
 
     return options
 
