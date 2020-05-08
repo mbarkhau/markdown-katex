@@ -376,15 +376,12 @@ def test_ignore_in_non_math_block():
         ~~~
         """
     )
-    result_a     = md.markdown(
+    result_a = md.markdown(
         md_text,
         extensions=DEFAULT_MKDOCS_EXTENSIONS + ['markdown_katex'],
         extension_configs={'markdown_katex': {'no_inline_svg': True}},
     )
-    result_b     = md.markdown(
-        md_text,
-        extensions=DEFAULT_MKDOCS_EXTENSIONS,
-    )
+    result_b = md.markdown(md_text, extensions=DEFAULT_MKDOCS_EXTENSIONS,)
     assert "katex" not in result_a
     assert "katex" not in result_b
 
