@@ -387,6 +387,6 @@ def test_ignore_in_non_math_block():
     assert "katex" not in result_b
 
     assert result_a == result_b
-    assert '<pre><code>This math is in' in result_a
+    assert "<pre><code>This math is in" in result_a
     assert '<pre><code class="python">def randint' in result_a
     assert '<pre><code class="javascript">function randint' in result_a
