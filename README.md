@@ -43,14 +43,14 @@ $ pip install markdown-katex
 
 This package includes the following binaries:
 
- - `katex-cli-0.10.2-linux-x64`
- - `katex-cli-0.10.2-macos-x64`
- - `katex-cli-0.10.2-win-x64`
+ - `katex-v0.11.1-x86_64-Linux`
+ - `katex-v0.11.1-x86_64-Macos`
+ - `katex-v0.11.1-x86_64-Windows`
 
 If you are on a different platform, or want to use a more recent version of `katex-cli`, you will need to [install it via npm][href_katexinstall_cli].
 
 ```bash
-$ pip install katex
+$ npx katex
 $ npx katex --version
 0.10.2
 ```
@@ -64,7 +64,7 @@ No JavaScript is required to render the resulting HTML, so it can be used with m
 
 Formulas can be created and edited interactively using the editor on [katex.org](https://katex.org/). They also have some [good documentation][href_katex_docs] for the subset of LaTeX that is supported. When embedding these in your Markdown files, they must be marked with a special syntax in order to be rendered using KaTeX. There are [many syntax extensions][href_cben_mathdown] for Markdown that allow LaTeX formulas to be embedded, however this package only supports the syntax introduced by Gitlab:
 
- - For inline mode formulas: &dollar;&#96;...&#96;&dollar; 
+ - For inline mode formulas: &dollar;&#96;...&#96;&dollar;
  - For display mode formulas: &#96;&#96;&#96;math
 
 Here is [an example](https://gitlab.com/snippets/1857641) that uses this syntax.
