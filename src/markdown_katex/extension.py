@@ -259,7 +259,7 @@ class KatexPreprocessor(Preprocessor):
                 elif fence_match:
                     is_in_fence          = True
                     expected_close_fence = fence_match.group(1)
-                    block_lines.append(line)
+                    out_lines.append(line)
                 else:
                     for inline_code in iter_inline_katex(line):
                         math_html = md_inline2html(inline_code.inline_text, self.ext.options)
