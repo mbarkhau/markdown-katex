@@ -580,8 +580,3 @@ docker_build:
 	fi
 
 	docker push $(DOCKER_BASE_IMAGE)
-
-
-## -- Extra/Custom/Project Specific Tasks --
-
--include makefile.extra.make
