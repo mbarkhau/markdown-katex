@@ -1,5 +1,10 @@
 # Changelog for https://gitlab.com/mbarkhau/markdown-katex
 
+## v202005.0016-beta
+
+ - Fix #6: [Regression in code block parsing](https://gitlab.com/mbarkhau/markdown-katex/-/issues/6), introduced in `v202004.0015-beta`
+
+
 ## v202004.0015-beta
 
  - Fix #3: [Inline math inside block](https://gitlab.com/mbarkhau/markdown-katex/-/issues/3)
