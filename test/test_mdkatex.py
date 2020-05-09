@@ -390,3 +390,39 @@ def test_ignore_in_non_math_block():
     assert "<pre><code>This math is in" in result_a
     assert '<pre><code class="python">def randint' in result_a
     assert '<pre><code class="javascript">function randint' in result_a
+
+
+def test_macro_file():
+    md_text = textwrap.dedent(
+        """
+        prelude
+        ```math
+        \\macroname{aaaAAA}{bbbBBB}
+        ```
+        postscript
+        """
+    )
+    macro_text = textwrap.dedent(
+        """
+        % macros.tex
+        \\macroname:\\text{prefix} \\text{#2} \\text{interlude} \\text{#1} \\text{suffix}
+        """
+    )
+
+    with tempfile.NamedTemporaryFile(suffix=".tex") as fobj:
+        fobj.write(macro_text.encode("ascii"))
+        fobj.flush()
+
+        macro_file = fobj.name
+
+        result = md.markdown(
+            md_text,
+            extensions=DEFAULT_MKDOCS_EXTENSIONS + ['markdown_katex'],
+            extension_configs={
+                'markdown_katex': {'no_inline_svg': True, 'macro-file': macro_file}
+            },
+        )
+        assert "prefix" in result
+        assert "interlude" in result
+        assert "suffix" in result
+        assert result.index("bbbBBB") < result.index("aaaAAA")

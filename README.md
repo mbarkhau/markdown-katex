@@ -96,16 +96,21 @@ $ make lint mypy test
 ```
 
 
-
 ## MkDocs Integration
 
 In your `mkdocs.yml` add this to markdown_extensions.
+
+```tex
+% macros.tex
+\mymacro:\text{prefix #1 suffix}
+```
 
 ```yaml
 markdown_extensions:
   - markdown_katex:
       no_inline_svg: True
       insert_fonts_css: True
+      macro-file: macros.tex
 ```
 
 
