@@ -418,9 +418,7 @@ def test_macro_file():
         result = md.markdown(
             md_text,
             extensions=DEFAULT_MKDOCS_EXTENSIONS + ['markdown_katex'],
-            extension_configs={
-                'markdown_katex': {'no_inline_svg': True, 'macro-file': macro_file}
-            },
+            extension_configs={'markdown_katex': {'no_inline_svg': True, 'macro-file': macro_file}},
         )
         assert "prefix" in result
         assert "interlude" in result
