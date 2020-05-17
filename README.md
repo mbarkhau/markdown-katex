@@ -6,8 +6,8 @@ which adds [KaTeX](https://katex.org/) support.
 
     ```math
     f(x) = \int_{-\infty}^\infty
-    \hat f(\xi)\,e^{2 \pi i \xi x}
-    \,d\xi
+        \hat f(\xi)\,e^{2 \pi i \xi x}
+        \,d\xi
     ```
 
 <p align="center">
@@ -52,7 +52,7 @@ If you are on a different platform, or want to use a more recent version of `kat
 ```bash
 $ npx katex
 $ npx katex --version
-0.10.2
+0.11.1
 ```
 
 This extension will always use the locally installed version of KaTeX if it is available, instead of using the implementation bundled with this package.
@@ -100,17 +100,20 @@ $ make lint mypy test
 
 In your `mkdocs.yml` add this to markdown_extensions.
 
-```tex
-% macros.tex
-\mymacro:\text{prefix #1 suffix}
-```
-
 ```yaml
+# mkdocs.yml
 markdown_extensions:
   - markdown_katex:
       no_inline_svg: True
       insert_fonts_css: True
       macro-file: macros.tex
+```
+
+The `macro-file` might looks something like this:
+
+```tex
+% macros.tex
+\mymacro:\text{prefix #1 suffix}
 ```
 
 
