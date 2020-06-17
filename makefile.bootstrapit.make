@@ -303,7 +303,7 @@ git_hooks:
 ## Run flake8 linter and check for fmt
 .PHONY: lint
 lint:
-	@printf "isort ..\n"
+	@printf "isort ...\n"
 	@$(DEV_ENV)/bin/isort \
 		--check-only \
 		--force-single-line-imports \
@@ -314,7 +314,7 @@ lint:
 		src/ test/
 	@printf "\e[1F\e[9C ok\n"
 
-	@printf "sjfmt ..\n"
+	@printf "sjfmt ...\n"
 	@$(DEV_ENV)/bin/sjfmt \
 		--target-version=py36 \
 		--skip-string-normalization \

@@ -7,7 +7,7 @@
 # Binary (non-pure) packages may also be listed here, but you
 # should see if there is a conda package that suits your needs.
 
-Markdown
+Markdown>=3.0
 typing;python_version<"3.5"
 pathlib2
 # setuptools is required for pkg_resources
