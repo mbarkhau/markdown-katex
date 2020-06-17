@@ -311,6 +311,7 @@ lint:
 		--recursive \
 		--line-width=$(MAX_LINE_LEN) \
 		--project $(PKG_NAME) \
+		-o pathlib2 \
 		src/ test/
 	@printf "\e[1F\e[9C ok\n"
 

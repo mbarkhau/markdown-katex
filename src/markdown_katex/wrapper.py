@@ -56,15 +56,15 @@ def _get_usr_bin_path() -> typ.Optional[pl.Path]:
     if FALLBACK_BIN_DIR not in env_paths:
         env_paths.append(FALLBACK_BIN_DIR)
 
-    local_bin_commands = [CMD_NAME]
-
     if OSNAME == 'Windows':
-        local_bin_commands.extend([f"{CMD_NAME}.cmd", f"{CMD_NAME}.ps1", f"{CMD_NAME}.exe"])
+        local_bin_commands = [f"{CMD_NAME}.cmd", f"{CMD_NAME}.ps1", f"{CMD_NAME}.exe"]
+    else:
+        local_bin_commands = [CMD_NAME]
 
     for path in env_paths:
         for local_cmd in local_bin_commands:
             local_bin = path / local_cmd
-            if local_bin.exists():
+            if local_bin.is_file():
                 return local_bin
 
     return None
