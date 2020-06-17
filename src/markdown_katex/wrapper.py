@@ -39,6 +39,11 @@ FALLBACK_BIN_DIR = FALLBACK_BIN_DIR.expanduser()
 CMD_NAME = "katex"
 
 
+# https://pymotw.com/3/platform/
+OSNAME  = platform.system()
+MACHINE = platform.machine()
+
+
 def _get_usr_bin_path() -> typ.Optional[pl.Path]:
     env_path = os.environ.get('PATH')
     env_paths: typ.List[pl.Path] = []
@@ -51,21 +56,18 @@ def _get_usr_bin_path() -> typ.Optional[pl.Path]:
     if FALLBACK_BIN_DIR not in env_paths:
         env_paths.append(FALLBACK_BIN_DIR)
 
-    for path in env_paths:
-        local_bin = path / CMD_NAME
-        if local_bin.exists():
-            return local_bin
+    local_bin_commands = [CMD_NAME]
 
-        local_bin = path / f"{CMD_NAME}.exe"
-        if local_bin.exists():
-            return local_bin
+    if OSNAME == 'Windows':
+        local_bin_commands.extend([f"{CMD_NAME}.cmd", f"{CMD_NAME}.ps1", f"{CMD_NAME}.exe"])
+
+    for path in env_paths:
+        for local_cmd in local_bin_commands:
+            local_bin = path / local_cmd
+            if local_bin.exists():
+                return local_bin
 
     return None
-
-
-# https://pymotw.com/3/platform/
-OSNAME  = platform.system()
-MACHINE = platform.machine()
 
 
 def _get_pkg_bin_path(osname: str = OSNAME, machine: str = MACHINE) -> pl.Path:
