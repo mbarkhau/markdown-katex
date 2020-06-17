@@ -1,6 +1,6 @@
 # Changelog for https://gitlab.com/mbarkhau/markdown-katex
 
-## v202006.1018
+## v202006.1019
 
  - Fix katex-cli on windows (now uses pkg --target node12...)
 
