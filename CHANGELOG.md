@@ -1,5 +1,10 @@
 # Changelog for https://gitlab.com/mbarkhau/markdown-katex
 
+## v202006.1018
+
+ - Fix katex-cli on windows (now uses pkg --target node12...)
+
+
 ## v202005.0017
 
  - Allow use of `macro-file` option.
