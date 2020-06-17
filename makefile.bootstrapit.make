@@ -306,12 +306,7 @@ lint:
 	@printf "isort ...\n"
 	@$(DEV_ENV)/bin/isort \
 		--check-only \
-		--force-single-line-imports \
-		--length-sort \
 		--recursive \
-		--line-width=$(MAX_LINE_LEN) \
-		--project $(PKG_NAME) \
-		-o pathlib2 \
 		src/ test/
 	@printf "\e[1F\e[9C ok\n"
 
@@ -402,11 +397,7 @@ test:
 .PHONY: fmt
 fmt:
 	@$(DEV_ENV)/bin/isort \
-		--force-single-line-imports \
-		--length-sort \
 		--recursive \
-		--line-width=$(MAX_LINE_LEN) \
-		--project $(PKG_NAME) \
 		src/ test/;
 
 	@$(DEV_ENV)/bin/sjfmt \
