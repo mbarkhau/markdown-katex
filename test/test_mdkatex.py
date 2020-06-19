@@ -20,8 +20,8 @@ TMP_DIR = pl.Path(tempfile.gettempdir()) / "mdkatex"
 
 BASIC_TEX_TXT = r"""
 f(x) = \int_{-\infty}^\infty
-\hat f(\xi)\,e^{2 \pi i \xi x}
-\,d\xi
+    \hat f(\xi)\,e^{2 \pi i \xi x}
+    \,d\xi
 """
 
 TEX_WITH_SVG_OUTPUT = r"\utilde{AB}"

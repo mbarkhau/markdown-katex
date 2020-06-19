@@ -36,6 +36,12 @@ PKG_BIN_DIR      = LIBDIR / "bin"
 FALLBACK_BIN_DIR = pl.Path("/") / "usr" / "local" / "bin"
 FALLBACK_BIN_DIR = FALLBACK_BIN_DIR.expanduser()
 
+# NOTE (mb 2020-06-19): I have no idea if this is true and have not found a good
+#   way to test it, especially not in any cross platform way. Maybe KaTeX doesn't
+#   care and just uses the same encoding for input as for output.
+KATEX_INPUT_ENCODING  = "UTF-8"
+KATEX_OUTPUT_ENCODING = "UTF-8"
+
 CMD_NAME = "katex"
 
 
@@ -134,7 +140,7 @@ def tex2html(tex: str, options: Options = None) -> str:
                 cmd_parts.append(arg_name)
                 cmd_parts.append(arg_value)
 
-    input_data = tex.encode("utf-8")
+    input_data = tex.encode(KATEX_INPUT_ENCODING)
 
     hasher = hashlib.sha256(input_data)
     for cmd_part in cmd_parts:
@@ -173,7 +179,7 @@ def tex2html(tex: str, options: Options = None) -> str:
 
         tmp_input_file.unlink()
 
-    with tmp_output_file.open(mode="r") as fobj:
+    with tmp_output_file.open(mode="r", encoding=KATEX_OUTPUT_ENCODING) as fobj:
         result = fobj.read()
 
     _cleanup_tmp_dir()
