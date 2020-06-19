@@ -1,8 +1,13 @@
 # Changelog for https://gitlab.com/mbarkhau/markdown-katex
 
+## v202006.1021
+
+ - Fix [#7](https://gitlab.com/mbarkhau/markdown-katex/-/issues/7): File encoding issue on Windows.
+
+
 ## v202006.1020
 
- - Fix katex-cli on Windows (now uses pkg --target node12...)
+ - Fix [#7](https://gitlab.com/mbarkhau/markdown-katex/-/issues/7) katex-cli on Windows (now uses pkg --target node12...)
  - Fix search for local `katex.ps1`, `katex.cmd`, `katex.exe` on Windows.
 
 
