@@ -1,3 +1,8 @@
+# pytest fixtures work this way
+# pylint: disable=redefined-outer-name
+# for wrp._get_pkg_bin_path
+# pylint: disable=protected-access
+
 import io
 import re
 import tempfile
@@ -126,8 +131,8 @@ def test_tex2html():
 def test_basic_block():
     html_data = markdown_katex.tex2html(BASIC_TEX_TXT)
 
-    # with open("debug_output_katex.html", mode="w") as fh:
-    #     fh.write(html_data)
+    # with open("debug_output_katex.html", mode="w") as fobj:
+    #     fobj.write(html_data)
 
     assert '<span class="katex' in html_data
 
@@ -322,8 +327,8 @@ def test_html_output():
         extension_configs={'markdown_katex': {'no_inline_svg': True}},
     )
     tmp_file = TMP_DIR / "test_output.html"
-    with tmp_file.open(mode="w", encoding="utf-8") as fh:
-        fh.write(result)
+    with tmp_file.open(mode="w", encoding="utf-8") as fobj:
+        fobj.write(result)
 
 
 def test_valid_xml():

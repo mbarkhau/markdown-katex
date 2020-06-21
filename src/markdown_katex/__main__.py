@@ -65,17 +65,18 @@ def _selftest() -> ExitCode:
     formula_html = "\n<hr/>\n".join(html_parts)
     html_text    = HTML_TEMPLATE.replace("{{content}}", formula_html)
 
-    with open("test.html", mode="wb") as fh:
-        fh.write(html_text.encode("utf-8"))
+    with open("test.html", mode="wb") as fobj:
+        fobj.write(html_text.encode("utf-8"))
 
     print("Created 'test.html'")
     return 0
 
 
 def main(args: typ.List[str] = sys.argv[1:]) -> ExitCode:
-    """Basic wrapper around the svgbob command.
+    """Basic wrapper around the katex command.
 
     This is mostly just used for self testing.
+    $ python -m markdown_katex
     """
     if "--markdown-katex-selftest" in args:
         return _selftest()

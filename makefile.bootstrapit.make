@@ -341,15 +341,7 @@ mypy:
 .PHONY: pylint
 pylint:
 	@printf "pylint ..\n";
-	@$(DEV_ENV)/bin/pylint --jobs=4 --output-format=colorized --score=no \
-		 --disable=C0103,C0301,C0330,C0326,C0330,C0411,R0903,W1619,W1618,W1203 \
-		 --extension-pkg-whitelist=ujson,lxml,PIL,numpy,pandas,sklearn,pyblake2 \
-		 src/
-	@$(DEV_ENV)/bin/pylint --jobs=4 --output-format=colorized --score=no \
-		 --disable=C0103,C0111,C0301,C0330,C0326,C0330,C0411,R0903,W1619,W1618,W1203 \
-		 --extension-pkg-whitelist=ujson,lxml,PIL,numpy,pandas,sklearn,pyblake2 \
-		 test/
-
+	@$(DEV_ENV)/bin/pylint --rcfile=setup.cfg src/ test/
 	@printf "\e[1F\e[9C ok\n"
 
 

@@ -187,11 +187,9 @@ class KatexExtension(Extension):
             self.config[name] = ["", options_text]
 
         self.options: wrapper.Options = {}
-        for name in self.config.keys():
-            if name in kwargs:
-                val = kwargs[name]
-            else:
-                val = self.getConfig(name, "")
+        for name in self.config:
+            val_configured = self.getConfig(name, "")
+            val            = kwargs.get(name, val_configured)
 
             if val != "":
                 self.options[name] = val

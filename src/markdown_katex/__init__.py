@@ -17,8 +17,13 @@ from markdown_katex.wrapper import get_bin_path
 from markdown_katex.extension import KatexExtension
 
 
-def makeExtension(**kwargs) -> KatexExtension:
+def _make_extension(**kwargs) -> KatexExtension:
     return KatexExtension(**kwargs)
+
+
+# Name that conforms with the Markdown extension API
+# https://python-markdown.github.io/extensions/api/#dot_notation
+makeExtension = _make_extension
 
 
 TEST_FORMULAS = r"""
