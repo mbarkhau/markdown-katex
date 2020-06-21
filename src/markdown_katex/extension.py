@@ -139,9 +139,9 @@ INLINE_DELIM_RE = re.compile(r"`{1,2}")
 
 class InlineCodeItem(typ.NamedTuple):
 
-    inline_text   : str
-    marker        : str
-    rewritten_line: str
+    inline_text: str
+    start      : int
+    end        : int
 
 
 def iter_inline_katex(line: str) -> typ.Iterable[InlineCodeItem]:
@@ -168,13 +168,9 @@ def iter_inline_katex(line: str) -> typ.Iterable[InlineCodeItem]:
             continue
 
         inline_text = line[start - 1 : end + 2]
-        marker_id   = make_marker_id("inline" + inline_text)
-        marker      = f"<span id='katex{marker_id}'>katex{marker_id}</span>"
-        line        = line[: start - 1] + marker + line[end + 2 :]
+        pos         = end + len(delim)
 
-        pos = end + len(delim) - len(inline_text) + len(marker)
-
-        yield InlineCodeItem(inline_text, marker, line)
+        yield InlineCodeItem(inline_text, start - 1, end + 2)
 
 
 class KatexExtension(Extension):
@@ -218,17 +214,34 @@ class KatexPreprocessor(Preprocessor):
         super(KatexPreprocessor, self).__init__(md)
         self.ext: KatexExtension = ext
 
-    def run(self, lines: typ.List[str]) -> typ.List[str]:
+    def _make_tag_for_block(self, block_lines: typ.List[str]) -> str:
+        block_text = "\n".join(block_lines).rstrip()
+        marker_id  = make_marker_id("block" + block_text)
+        marker_tag = f"<p id='katex{marker_id}'>katex{marker_id}</p>"
+
+        math_html = md_block2html(block_text, self.ext.options)
+        tag_text  = f"<p>{math_html}</p>"
+        self.ext.math_html[marker_tag] = tag_text
+        return marker_tag
+
+    def _make_tag_for_inline(self, inline_text: str) -> str:
+        marker_id  = make_marker_id("inline" + inline_text)
+        marker_tag = f"<span id='katex{marker_id}'>katex{marker_id}</span>"
+
+        math_html = md_inline2html(inline_text, self.ext.options)
+        self.ext.math_html[marker_tag] = math_html
+        return marker_tag
+
+    def _iter_out_lines(self, lines: typ.List[str]) -> typ.Iterable[str]:
         is_in_math_fence     = False
         is_in_fence          = False
         expected_close_fence = "```"
 
         block_lines: typ.List[str] = []
-        out_lines  : typ.List[str] = []
 
         for line in lines:
             if is_in_fence:
-                out_lines.append(line)
+                yield line
                 is_ending_fence = line.strip() == expected_close_fence
                 if is_ending_fence:
                     is_in_fence = False
@@ -239,14 +252,9 @@ class KatexPreprocessor(Preprocessor):
                     continue
 
                 is_in_math_fence = False
-                block_text       = "\n".join(block_lines).rstrip()
+                marker_tag       = self._make_tag_for_block(block_lines)
                 del block_lines[:]
-                math_html = md_block2html(block_text, self.ext.options)
-                marker_id = make_marker_id("block" + block_text)
-                marker    = f"<p id='katex{marker_id}'>katex{marker_id}</p>"
-                tag_text  = f"<p>{math_html}</p>"
-                out_lines.append(marker)
-                self.ext.math_html[marker] = tag_text
+                yield marker_tag
             else:
                 math_fence_match = MATH_FENCE_RE.match(line)
                 fence_match      = FENCE_RE.match(line)
@@ -257,22 +265,25 @@ class KatexPreprocessor(Preprocessor):
                 elif fence_match:
                     is_in_fence          = True
                     expected_close_fence = fence_match.group(1)
-                    out_lines.append(line)
+                    yield line
                 else:
-                    for inline_code in iter_inline_katex(line):
-                        math_html = md_inline2html(inline_code.inline_text, self.ext.options)
-                        self.ext.math_html[inline_code.marker] = math_html
-                        line = inline_code.rewritten_line
+                    inline_codes = list(iter_inline_katex(line))
+                    for code in reversed(inline_codes):
+                        # iterate in reverse, so that start and end indexes
+                        # remain valid after replacements
+                        marker_tag = self._make_tag_for_inline(code.inline_text)
+                        line       = line[: code.start] + marker_tag + line[code.end :]
 
-                    out_lines.append(line)
+                    yield line
 
-        return out_lines
+    def run(self, lines: typ.List[str]) -> typ.List[str]:
+        return list(self._iter_out_lines(lines))
 
 
 # NOTE (mb):
 #   Q: Why this business with the Postprocessor? Why
 #   not just do `out_lines.append(tag_text)` and save
-#   the hassle of `self.ext.math_html[marker] = tag_text` ?
+#   the hassle of `self.ext.math_html[marker_tag] = tag_text` ?
 #   A: Maybe there are other processors that can't be
 #   trusted to leave the inserted markup alone. Maybe
 #   the inserted markup could be incorrectly parsed as

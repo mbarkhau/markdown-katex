@@ -108,6 +108,22 @@ def test_inline_parsing(line, expected):
     assert result == expected
 
 
+def test_inline_multiple():
+    md_text = textwrap.dedent(
+        """
+        # headline
+
+        Pre $`a+b`$ inter 1 $`c+d`$ inter 2 $`e+f`$ post
+        """
+    )
+    result = md.markdown(md_text, extensions=['markdown_katex'])
+    assert result.strip().startswith(ext.KATEX_STYLES.strip())
+    # check that spans were added
+    assert result.count('<span class="katex"><') == 3
+    # check that markers were replaced
+    assert '<span class="katex">katex' not in result
+
+
 def test_determinism():
     html_data1 = markdown_katex.tex2html(BASIC_TEX_TXT)
     html_data2 = markdown_katex.tex2html(BASIC_TEX_TXT)
