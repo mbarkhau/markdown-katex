@@ -41,7 +41,7 @@ f(x) = \int_{-\infty}^\infty
     \,d\xi
 """
 
-TEX_WITH_SVG_OUTPUT = r"\utilde{AB}"
+TEX_WITH_SVG_OUTPUT = "\\utilde{AB}"
 
 
 BASIC_BLOCK_TXT = "```math\n" + BASIC_TEX_TXT + "```"
@@ -169,7 +169,7 @@ def test_basic_block():
     assert no_inline_svg == default_output
     assert default_output
     assert default_output.startswith('<span class="katex-display"')
-    expected = u"<p>{}</p>".format(default_output)
+    expected = "<p>{}</p>".format(default_output)
 
     result = md.markdown(BASIC_BLOCK_TXT, extensions=['markdown_katex'])
 
@@ -324,8 +324,8 @@ def test_err_msg():
         assert False, "expected an exception"
     except Exception as ex:
         err_msg = ex.args[0]
-        assert u"ParseError: KaTeX parse error:" in err_msg
-        assert u"Expected '}'" in err_msg
+        assert "ParseError: KaTeX parse error:" in err_msg
+        assert "Expected '}'" in err_msg
 
 
 def test_bin_paths():
