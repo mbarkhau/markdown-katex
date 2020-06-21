@@ -120,9 +120,8 @@ ArgValue = typ.Union[str, int, float, bool]
 Options  = typ.Dict[str, ArgValue]
 
 
-def tex2html(tex: str, options: Options = None) -> str:
-    binpath   = get_bin_path()
-    cmd_parts = [str(binpath)]
+def _iter_cmd_parts(options: Options = None) -> typ.Iterable[str]:
+    yield str(get_bin_path())
 
     if options:
         for option_name, option_value in options.items():
@@ -132,59 +131,69 @@ def tex2html(tex: str, options: Options = None) -> str:
                 arg_name = "--" + option_name
 
             if option_value is True:
-                cmd_parts.append(arg_name)
+                yield arg_name
             elif option_value is False:
                 continue
             else:
                 arg_value = str(option_value)
-                cmd_parts.append(arg_name)
-                cmd_parts.append(arg_value)
+                yield arg_name
+                yield arg_value
 
-    input_data = tex.encode(KATEX_INPUT_ENCODING)
 
-    hasher = hashlib.sha256(input_data)
+def _cmd_digest(tex: str, cmd_parts: typ.List[str]) -> str:
+    hasher = hashlib.sha256(tex.encode("utf-8"))
     for cmd_part in cmd_parts:
         hasher.update(cmd_part.encode("utf-8"))
+    return hasher.hexdigest()
 
-    digest = hasher.hexdigest()
 
-    tmp_input_file  = TMP_DIR / (digest + ".tex")
-    tmp_output_file = TMP_DIR / (digest + ".html")
+def _write_tex2html(cmd_parts: typ.List[str], tex: str, tmp_output_file: pl.Path) -> None:
+    tmp_input_file = TMP_DIR / tmp_output_file.name.replace(".html", ".tex")
+    input_data     = tex.encode(KATEX_INPUT_ENCODING)
 
-    if tmp_output_file.exists():
-        tmp_output_file.touch()
-    else:
-        cmd_parts.extend(["--input", str(tmp_input_file), "--output", str(tmp_output_file)])
+    TMP_DIR.mkdir(parents=True, exist_ok=True)
+    with tmp_input_file.open(mode="wb") as fobj:
+        fobj.write(input_data)
 
-        TMP_DIR.mkdir(parents=True, exist_ok=True)
-        with tmp_input_file.open(mode="wb") as fobj:
-            fobj.write(input_data)
+    cmd_parts.extend(["--input", str(tmp_input_file), "--output", str(tmp_output_file)])
+    proc     = sp.Popen(cmd_parts, stdout=sp.PIPE, stderr=sp.PIPE)
+    ret_code = proc.wait()
+    if ret_code < 0:
+        signame = SIG_NAME_BY_NUM[abs(ret_code)]
+        err_msg = (
+            f"Error processing '{tex}': "
+            + "katex_cli process ended with "
+            + f"code {ret_code} ({signame})"
+        )
+        raise Exception(err_msg)
+    elif ret_code > 0:
+        stdout  = read_output(proc.stdout)
+        errout  = read_output(proc.stderr)
+        output  = (stdout + "\n" + errout).strip()
+        err_msg = f"Error processing '{tex}': {output}"
+        raise Exception(err_msg)
 
-        proc     = sp.Popen(cmd_parts, stdout=sp.PIPE, stderr=sp.PIPE)
-        ret_code = proc.wait()
-        if ret_code < 0:
-            signame = SIG_NAME_BY_NUM[abs(ret_code)]
-            err_msg = (
-                f"Error processing '{tex}': "
-                + "katex_cli process ended with "
-                + f"code {ret_code} ({signame})"
-            )
-            raise Exception(err_msg)
-        elif ret_code > 0:
-            stdout  = read_output(proc.stdout)
-            errout  = read_output(proc.stderr)
-            output  = (stdout + "\n" + errout).strip()
-            err_msg = f"Error processing '{tex}': {output}"
-            raise Exception(err_msg)
+    tmp_input_file.unlink()
 
-        tmp_input_file.unlink()
 
-    with tmp_output_file.open(mode="r", encoding=KATEX_OUTPUT_ENCODING) as fobj:
-        result = fobj.read()
+def tex2html(tex: str, options: Options = None) -> str:
+    cmd_parts       = list(_iter_cmd_parts(options))
+    digest          = _cmd_digest(tex, cmd_parts)
+    tmp_filename    = digest + ".html"
+    tmp_output_file = TMP_DIR / tmp_filename
 
-    _cleanup_tmp_dir()
+    try:
+        if tmp_output_file.exists():
+            # give cached file a life extension (update mtime)
+            tmp_output_file.touch()
+        else:
+            _write_tex2html(cmd_parts, tex, tmp_output_file)
 
-    return result.strip()
+        with tmp_output_file.open(mode="r", encoding=KATEX_OUTPUT_ENCODING) as fobj:
+            result = typ.cast(str, fobj.read())
+            return result.strip()
+    finally:
+        _cleanup_tmp_dir()
 
 
 def _cleanup_tmp_dir() -> None:
