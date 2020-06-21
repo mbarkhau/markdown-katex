@@ -196,7 +196,7 @@ class KatexExtension(Extension):
     def reset(self) -> None:
         self.math_html.clear()
 
-    def extendMarkdown(self, md, *args, **kwargs) -> None:
+    def extendMarkdown(self, md) -> None:
         preproc = KatexPreprocessor(md, self)
         md.preprocessors.register(preproc, name='katex_fenced_code_block', priority=50)
 
