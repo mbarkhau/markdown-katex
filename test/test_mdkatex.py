@@ -1,7 +1,19 @@
+# -*- coding: utf-8 -*-
+# This file is part of markdown-katex.
+# https://gitlab.com/mbarkhau/markdown-katex
+#
+# Copyright (c) 2019 Manuel Barkhau (mbarkhau@gmail.com) - MIT License
+# SPDX-License-Identifier: MIT
+
 # pytest fixtures work this way
 # pylint: disable=redefined-outer-name
 # for wrp._get_pkg_bin_path
 # pylint: disable=protected-access
+
+from __future__ import division
+from __future__ import print_function
+from __future__ import absolute_import
+from __future__ import unicode_literals
 
 import io
 import re

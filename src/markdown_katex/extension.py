@@ -282,8 +282,8 @@ class KatexPreprocessor(Preprocessor):
 
 # NOTE (mb):
 #   Q: Why this business with the Postprocessor? Why
-#   not just do `out_lines.append(tag_text)` and save
-#   the hassle of `self.ext.math_html[marker_tag] = tag_text` ?
+#   not just do `yield tag_text` and save the hassle
+#   of `self.ext.math_html[marker_tag] = tag_text` ?
 #   A: Maybe there are other processors that can't be
 #   trusted to leave the inserted markup alone. Maybe
 #   the inserted markup could be incorrectly parsed as
@@ -296,7 +296,7 @@ class KatexPostprocessor(Postprocessor):
         self.ext: KatexExtension = ext
 
     def run(self, text: str) -> str:
-        if not any(marker in text for marker in self.ext.math_html):
+        if not any(marker_tag in text for marker_tag in self.ext.math_html):
             return text
 
         if self.ext.options:
@@ -307,13 +307,13 @@ class KatexPostprocessor(Postprocessor):
         if insert_fonts_css and KATEX_STYLES not in text:
             text = KATEX_STYLES + text
 
-        for marker, html in self.ext.math_html.items():
-            wrapped_marker = "<p>" + marker + "</p>"
+        for marker_tag, html in self.ext.math_html.items():
+            wrapped_marker = "<p>" + marker_tag + "</p>"
             if wrapped_marker in text:
                 text = text.replace(wrapped_marker, html)
-            elif marker in text:
-                text = text.replace(marker, html)
+            elif marker_tag in text:
+                text = text.replace(marker_tag, html)
             else:
-                log.warning(f"KatexPostprocessor couldn't find: {marker}")
+                log.warning(f"KatexPostprocessor couldn't find: {marker_tag}")
 
         return text
