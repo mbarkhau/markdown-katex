@@ -300,9 +300,9 @@ git_hooks:
 ## -- Integration --
 
 
-## Run flake8 linter and check for fmt
-.PHONY: lint
-lint:
+## Run isort with --check-only
+.PHONY: lint_isort
+lint_isort:
 	@printf "isort ..\n"
 	@$(DEV_ENV)/bin/isort \
 		--check-only \
@@ -314,6 +314,10 @@ lint:
 		src/ test/
 	@printf "\e[1F\e[9C ok\n"
 
+
+## Run sjfmt with --check
+.PHONY: lint_sjfmt
+lint_sjfmt:
 	@printf "sjfmt ..\n"
 	@$(DEV_ENV)/bin/sjfmt \
 		--target-version=py36 \
@@ -323,9 +327,18 @@ lint:
 		src/ test/ 2>&1 | sed "/All done/d" | sed "/left unchanged/d"
 	@printf "\e[1F\e[9C ok\n"
 
+
+## Run flake8
+.PHONY: lint_flake8
+lint_flake8:
 	@printf "flake8 ..\n"
 	@$(DEV_ENV)/bin/flake8 src/
 	@printf "\e[1F\e[9C ok\n"
+
+
+## Run flake8 linter and check for fmt
+.PHONY: lint
+lint: lint_isort lint_sjfmt
 
 
 ## Run mypy type checker
@@ -391,9 +404,9 @@ test:
 ## -- Helpers --
 
 
-## Run code formatter on src/ and test/
-.PHONY: fmt
-fmt:
+## Run import sorting on src/ and test/
+.PHONY: fmt_isort
+fmt_isort:
 	@$(DEV_ENV)/bin/isort \
 		--force-single-line-imports \
 		--length-sort \
@@ -402,6 +415,10 @@ fmt:
 		--project $(PKG_NAME) \
 		src/ test/;
 
+
+## Run code formatter on src/ and test/
+.PHONY: fmt_sjfmt
+fmt_sjfmt:
 	@$(DEV_ENV)/bin/sjfmt \
 		--target-version=py36 \
 		--skip-string-normalization \
@@ -409,10 +426,14 @@ fmt:
 		src/ test/;
 
 
+## Run code formatters
+.PHONY: fmt
+fmt: fmt_isort fmt_sjfmt
 
-## Shortcut for make fmt lint mypy test
+
+## Shortcut for make fmt lint mypy devtest test
 .PHONY: check
-check:  fmt lint mypy test
+check: fmt lint mypy devtest test
 
 
 ## Start subshell with environ variables set.
@@ -527,7 +548,7 @@ dist_build:
 	@rm -rf build/lib/;
 	$(DEV_ENV_PY) setup.py sdist;
 	$(DEV_ENV_PY) setup.py bdist_wheel --python-tag=$(BDIST_WHEEL_PYTHON_TAG);
-	@rm -rf src/*.egg-info;
+	@rm -rf src/*.egg-info
 
 
 ## Upload sdist and bdist files to pypi
