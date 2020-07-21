@@ -10,9 +10,11 @@ which adds [KaTeX](https://katex.org/) support.
         \,d\xi
     ```
 
+<div align="center">
 <p align="center">
-<img src="https://mbarkhau.keybase.pub/static/markdown-katex-example.png" height=128>
+<img src="markdown-katex-example.png" height=128>
 </p>
+</div>
 
 Project/Repo:
 
