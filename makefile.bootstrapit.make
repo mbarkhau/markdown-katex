@@ -21,6 +21,7 @@ ifndef SUPPORTED_PYTHON_VERSIONS
 endif
 
 PKG_NAME := $(PACKAGE_NAME)
+MODULE_NAME := $(shell echo $(subst -,_,$(PACKAGE_NAME)) | tr A-Z a-z)
 
 # TODO (mb 2018-09-23): Support for bash on windows
 #    perhaps we need to install conda using this
@@ -303,14 +304,14 @@ git_hooks:
 ## Run isort with --check-only
 .PHONY: lint_isort
 lint_isort:
-	@printf "isort ..\n"
+	@printf "isort ...\n"
 	@$(DEV_ENV)/bin/isort \
 		--check-only \
 		--force-single-line-imports \
 		--length-sort \
 		--recursive \
 		--line-width=$(MAX_LINE_LEN) \
-		--project $(PKG_NAME) \
+		--project $(MODULE_NAME) \
 		src/ test/
 	@printf "\e[1F\e[9C ok\n"
 
@@ -318,7 +319,7 @@ lint_isort:
 ## Run sjfmt with --check
 .PHONY: lint_sjfmt
 lint_sjfmt:
-	@printf "sjfmt ..\n"
+	@printf "sjfmt ...\n"
 	@$(DEV_ENV)/bin/sjfmt \
 		--target-version=py36 \
 		--skip-string-normalization \
@@ -331,34 +332,52 @@ lint_sjfmt:
 ## Run flake8
 .PHONY: lint_flake8
 lint_flake8:
+	@rm -f reports/flake8*;
+	@mkdir -p "reports/";
+
 	@printf "flake8 ..\n"
-	@$(DEV_ENV)/bin/flake8 src/
+	@$(DEV_ENV)/bin/flake8 src/ --tee --output-file reports/flake8.txt || exit 0;
+	@$(DEV_ENV)/bin/flake8_junit reports/flake8.txt reports/flake8.xml >> /dev/null;
+	@$(DEV_ENV_PY) scripts/exit_0_if_empty.py reports/flake8.txt;
+
 	@printf "\e[1F\e[9C ok\n"
+
+
+## Run pylint.
+.PHONY: lint_pylint
+lint_pylint:
+	@mkdir -p "reports/";
+
+	@printf "pylint ..\n";
+	@$(DEV_ENV)/bin/pylint-ignore --rcfile=setup.cfg \
+		src/ test/
+	@printf "\e[1F\e[9C ok\n"
+
+
+## Run pylint-ignore --update-ignorefile.
+.PHONY: pylint_update_ignorefile
+pylint_update_ignorefile:
+	$(DEV_ENV)/bin/pylint-ignore --rcfile=setup.cfg \
+		src/ test/ --update-ignorefile
 
 
 ## Run flake8 linter and check for fmt
 .PHONY: lint
-lint: lint_isort lint_sjfmt
+lint: lint_isort lint_sjfmt lint_flake8 lint_pylint
 
 
 ## Run mypy type checker
 .PHONY: mypy
 mypy:
 	@rm -rf ".mypy_cache";
+	@rm -rf "reports/mypycov";
+	@mkdir -p "reports/";
 
 	@printf "mypy ....\n"
 	@MYPYPATH=stubs/:vendor/ $(DEV_ENV_PY) -m mypy \
-		--html-report mypycov \
+		--html-report reports/mypycov \
 		--no-error-summary \
 		src/ | sed "/Generated HTML report/d"
-	@printf "\e[1F\e[9C ok\n"
-
-
-## Run pylint. Should not break the build yet
-.PHONY: pylint
-pylint:
-	@printf "pylint ..\n";
-	@$(DEV_ENV)/bin/pylint --rcfile=setup.cfg src/ test/
 	@printf "\e[1F\e[9C ok\n"
 
 
@@ -368,6 +387,9 @@ test:
 	@rm -rf ".pytest_cache";
 	@rm -rf "src/__pycache__";
 	@rm -rf "test/__pycache__";
+	@rm -rf "reports/testcov/";
+	@rm -f "reports/pytest*";
+	@mkdir -p "reports/";
 
 	# First we test the local source tree using the dev environment
 	ENV=$${ENV-dev} \
@@ -376,8 +398,10 @@ test:
 		$(DEV_ENV_PY) -m pytest -v \
 		--doctest-modules \
 		--verbose \
-		--cov-report html \
+		--cov-report "html:reports/testcov/" \
 		--cov-report term \
+		--html=reports/pytest/index.html \
+		--junitxml reports/pytest.xml \
 		-k "$${PYTEST_FILTER}" \
 		$(shell cd src/ && ls -1 */__init__.py | awk '{ sub(/\/__init__.py/, "", $$1); print "--cov "$$1 }') \
 		test/ src/;
@@ -412,7 +436,7 @@ fmt_isort:
 		--length-sort \
 		--recursive \
 		--line-width=$(MAX_LINE_LEN) \
-		--project $(PKG_NAME) \
+		--project $(MODULE_NAME) \
 		src/ test/;
 
 

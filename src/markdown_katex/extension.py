@@ -15,29 +15,14 @@ from markdown.preprocessors import Preprocessor
 from markdown.postprocessors import Postprocessor
 
 import markdown_katex.wrapper as wrapper
+from markdown_katex.html import KATEX_STYLES
 
-log = logging.getLogger(__name__)
+logger = logging.getLogger(__name__)
 
 
 SVG_ELEM_RE = re.compile(r"<svg.*?</svg>", flags=re.MULTILINE | re.DOTALL)
 
 SVG_XMLNS = 'xmlns="http://www.w3.org/2000/svg" ' + 'xmlns:xlink="http://www.w3.org/1999/xlink" '
-
-KATEX_STYLES = """
-<link rel="stylesheet"
-    href="https://cdn.jsdelivr.net/npm/katex@0.10.2/dist/katex.css"
-    integrity="sha256-SSjvSe9BDSZMUczwnbB1ywCyIk2XaNly9nn6yRm6WJo="
-    crossorigin="anonymous" />
-<style type="text/css">
-    .katex img {
-      display: block;
-      position: absolute;
-      width: 100%;
-      height: inherit;
-    }
-</style>
-"""
-
 
 B64IMG_TMPL = '<img src="data:image/svg+xml;base64,{img_text}"/>'
 
@@ -314,6 +299,6 @@ class KatexPostprocessor(Postprocessor):
             elif marker_tag in text:
                 text = text.replace(marker_tag, html)
             else:
-                log.warning(f"KatexPostprocessor couldn't find: {marker_tag}")
+                logger.warning(f"KatexPostprocessor couldn't find: {marker_tag}")
 
         return text

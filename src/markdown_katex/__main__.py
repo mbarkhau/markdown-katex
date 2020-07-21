@@ -11,59 +11,43 @@ import typing as typ
 import subprocess as sp
 
 import markdown_katex
+from markdown_katex import html
 
 # To enable pretty tracebacks:
-#   echo "export ENABLE_BACKTRACE=1;" >> ~/.bashrc
-if os.environ.get('ENABLE_BACKTRACE') == '1':
-    import backtrace
+#   echo "export ENABLE_RICH_TB=1;" >> ~/.bashrc
+if os.environ.get('ENABLE_RICH_TB') == '1':
+    try:
+        import rich.traceback
 
-    backtrace.hook(align=True, strip_path=True, enable_on_envvar_only=True)
-
-
-HTML_TEMPLATE = """
-<!DOCTYPE html>
-<html>
-<head>
-  <title>Test Katex</title>
-  <link rel="stylesheet"
-    href="https://cdn.jsdelivr.net/npm/katex@0.10.2/dist/katex.css"
-    integrity="sha256-SSjvSe9BDSZMUczwnbB1ywCyIk2XaNly9nn6yRm6WJo="
-    crossorigin="anonymous" />
-  <style type="text/css">
-    body{background: white; }
-  </style>
-</head>
-<body>
-Generated with markdown-katex
-<hr/>
-{{content}}
-</body>
-</html>
-"""
+        rich.traceback.install()
+    except ImportError:
+        # don't fail just because of missing dev library
+        pass
 
 
 ExitCode = int
 
 
 def _selftest() -> ExitCode:
-    import markdown_katex.wrapper as wrp
+    # pylint:disable=import-outside-toplevel  ; lazy import to improve cli responsiveness
+    from markdown_katex import wrapper
 
     print("Command options:")
-    print(json.dumps(wrp.parse_options(), indent=4))
+    print(json.dumps(wrapper.parse_options(), indent=4))
     print()
 
     html_parts: typ.List[str] = []
     test_formulas = markdown_katex.TEST_FORMULAS
 
     for tex_formula in test_formulas:
-        html_part = wrp.tex2html(tex_formula)
+        html_part = wrapper.tex2html(tex_formula)
         if not html_part:
             return 1
 
         html_parts.append(html_part)
 
     formula_html = "\n<hr/>\n".join(html_parts)
-    html_text    = HTML_TEMPLATE.replace("{{content}}", formula_html)
+    html_text    = html.HTML_TEMPLATE.replace("{{content}}", formula_html)
 
     with open("test.html", mode="wb") as fobj:
         fobj.write(html_text.encode("utf-8"))
@@ -72,12 +56,14 @@ def _selftest() -> ExitCode:
     return 0
 
 
-def main(args: typ.List[str] = sys.argv[1:]) -> ExitCode:
+def main(args: typ.Sequence[str] = sys.argv[1:]) -> ExitCode:
     """Basic wrapper around the katex command.
 
     This is mostly just used for self testing.
     $ python -m markdown_katex
     """
+    # pylint:disable=dangerous-default-value ; mypy will catch mutations of args
+
     if "--markdown-katex-selftest" in args:
         return _selftest()
 
@@ -86,7 +72,7 @@ def main(args: typ.List[str] = sys.argv[1:]) -> ExitCode:
         print("markdown-katex version: ", version)
 
     binpath = markdown_katex.get_bin_path()
-    return sp.call([str(binpath)] + args)
+    return sp.call([str(binpath)] + list(args))
 
 
 if __name__ == '__main__':

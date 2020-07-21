@@ -322,8 +322,8 @@ def test_err_msg():
     try:
         md.markdown(md_txt, extensions=['markdown_katex'])
         assert False, "expected an exception"
-    except Exception as ex:
-        err_msg = ex.args[0]
+    except wrp.KatexError as err:
+        err_msg = err.args[0]
         assert "ParseError: KaTeX parse error:" in err_msg
         assert "Expected '}'" in err_msg
 

@@ -147,6 +147,10 @@ def _cmd_digest(tex: str, cmd_parts: typ.List[str]) -> str:
     return hasher.hexdigest()
 
 
+class KatexError(Exception):
+    pass
+
+
 def _write_tex2html(cmd_parts: typ.List[str], tex: str, tmp_output_file: pl.Path) -> None:
     tmp_input_file = TMP_DIR / tmp_output_file.name.replace(".html", ".tex")
     input_data     = tex.encode(KATEX_INPUT_ENCODING)
@@ -165,13 +169,13 @@ def _write_tex2html(cmd_parts: typ.List[str], tex: str, tmp_output_file: pl.Path
             + "katex_cli process ended with "
             + f"code {ret_code} ({signame})"
         )
-        raise Exception(err_msg)
+        raise KatexError(err_msg)
     elif ret_code > 0:
         stdout  = read_output(proc.stdout)
         errout  = read_output(proc.stderr)
         output  = (stdout + "\n" + errout).strip()
         err_msg = f"Error processing '{tex}': {output}"
-        raise Exception(err_msg)
+        raise KatexError(err_msg)
 
     tmp_input_file.unlink()
 
