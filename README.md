@@ -12,7 +12,7 @@ which adds [KaTeX](https://katex.org/) support.
 
 <div align="center">
 <p align="center">
-<img src="markdown-katex-example.png" height=128>
+<img src="https://gitlab.com/mbarkhau/markdown-katex/-/raw/master/markdown-katex-example.png" height=128>
 </p>
 </div>
 
