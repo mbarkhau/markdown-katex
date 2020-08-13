@@ -26,7 +26,8 @@ Project/Repo:
 
 Code Quality/CI:
 
-[![Build Status][build_img]][build_ref]
+[![GitHub CI Status][github_build_img]][github_build_ref]
+[![GitLab CI Status][gitlab_build_img]][gitlab_build_ref]
 [![Type Checked with mypy][mypy_img]][mypy_ref]
 [![Code Coverage][codecov_img]][codecov_ref]
 [![Code Style: sjfmt][style_img]][style_ref]
@@ -41,6 +42,10 @@ Code Quality/CI:
 
 ```bash
 $ pip install markdown-katex
+...
+$ python -m markdown_katex --version
+markdown-katex version:  v202008.1022
+0.12.0
 ```
 
 This package includes the following binaries:
@@ -54,7 +59,7 @@ If you are on a different platform, or want to use a more recent version of `kat
 ```bash
 $ npx katex
 $ npx katex --version
-0.11.1
+0.12.0
 ```
 
 This extension will always use the locally installed version of KaTeX if it is available, instead of using the implementation bundled with this package.
@@ -123,8 +128,11 @@ The `macro-file` might looks something like this:
 
 [repo_ref]: https://gitlab.com/mbarkhau/markdown-katex
 
-[build_img]: https://gitlab.com/mbarkhau/markdown-katex/badges/master/pipeline.svg
-[build_ref]: https://gitlab.com/mbarkhau/markdown-katex/pipelines
+[github_build_img]: https://github.com/mbarkhau/markdown-katex/workflows/CI/badge.svg
+[github_build_ref]: https://github.com/mbarkhau/markdown-katex/actions?query=workflow%3ACI
+
+[gitlab_build_img]: https://gitlab.com/mbarkhau/markdown-katex/badges/master/pipeline.svg
+[gitlab_build_ref]: https://gitlab.com/mbarkhau/markdown-katex/pipelines
 
 [codecov_img]: https://gitlab.com/mbarkhau/markdown-katex/badges/master/coverage.svg
 [codecov_ref]: https://mbarkhau.gitlab.io/markdown-katex/cov
