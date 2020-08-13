@@ -50,7 +50,7 @@ OSNAME  = platform.system()
 MACHINE = platform.machine()
 
 
-def _get_usr_bin_path() -> typ.Optional[pl.Path]:
+def _get_usr_bin() -> typ.Optional[typ.List[str]]:
     env_path = os.environ.get('PATH')
     env_paths: typ.List[pl.Path] = []
 
@@ -63,15 +63,25 @@ def _get_usr_bin_path() -> typ.Optional[pl.Path]:
         env_paths.append(FALLBACK_BIN_DIR)
 
     if OSNAME == 'Windows':
-        local_bin_commands = [f"{CMD_NAME}.cmd", f"{CMD_NAME}.ps1", f"{CMD_NAME}.exe"]
+        local_bin_commands = [
+            f"{CMD_NAME}.cmd",
+            f"{CMD_NAME}.ps1",
+            f"{CMD_NAME}.exe",
+            "npx.cmd",
+            "npx.ps1",
+            "npx.exe",
+        ]
     else:
-        local_bin_commands = [CMD_NAME]
+        local_bin_commands = [CMD_NAME, "npx"]
 
     for path in env_paths:
         for local_cmd in local_bin_commands:
             local_bin = path / local_cmd
             if local_bin.is_file():
-                return local_bin
+                if local_cmd.startswith("npx"):
+                    return [str(local_bin), "--no-install", CMD_NAME]
+                else:
+                    return [str(local_bin)]
 
     return None
 
@@ -94,12 +104,13 @@ def _get_pkg_bin_path(osname: str = OSNAME, machine: str = MACHINE) -> pl.Path:
     raise NotImplementedError(err_msg)
 
 
-def get_bin_path() -> pl.Path:
-    usr_bin_path = _get_usr_bin_path()
-    if usr_bin_path:
-        return usr_bin_path
+def get_bin_cmd() -> typ.List[str]:
+    usr_bin_cmd = _get_usr_bin()
+    if usr_bin_cmd is None:
+        # use packaged binary
+        return [str(_get_pkg_bin_path())]
     else:
-        return _get_pkg_bin_path()
+        return usr_bin_cmd
 
 
 def _iter_output_lines(buf: typ.IO[bytes]) -> typ.Iterable[bytes]:
@@ -121,7 +132,8 @@ Options  = typ.Dict[str, ArgValue]
 
 
 def _iter_cmd_parts(options: Options = None) -> typ.Iterable[str]:
-    yield str(get_bin_path())
+    for cmd_part in get_bin_cmd():
+        yield cmd_part
 
     if options:
         for option_name, option_value in options.items():
@@ -238,8 +250,8 @@ DEFAULT_HELP_TEXT = DEFAULT_HELP_TEXT.replace("\n", " ").replace("NL", "\n")
 
 
 def _get_cmd_help_text() -> str:
-    binpath   = get_bin_path()
-    cmd_parts = [str(binpath), "--help"]
+    bin_parts = get_bin_cmd()
+    cmd_parts = bin_parts + ['--help']
     proc      = sp.Popen(cmd_parts, stdout=sp.PIPE)
     help_text = read_output(proc.stdout)
     return help_text

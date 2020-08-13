@@ -13,7 +13,7 @@ uses KaTeX to generate html from tex.
 __version__ = "v202006.1021"
 
 from markdown_katex.wrapper import tex2html
-from markdown_katex.wrapper import get_bin_path
+from markdown_katex.wrapper import get_bin_cmd
 from markdown_katex.extension import KatexExtension
 
 
@@ -100,4 +100,4 @@ f(x) = \int_{-\infty}^\infty
 )
 
 
-__all__ = ['makeExtension', '__version__', 'get_bin_path', 'tex2html', 'TEST_FORMULAS']
+__all__ = ['makeExtension', '__version__', 'get_bin_cmd', 'tex2html', 'TEST_FORMULAS']

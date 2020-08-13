@@ -71,8 +71,8 @@ def main(args: typ.Sequence[str] = sys.argv[1:]) -> ExitCode:
         version = markdown_katex.__version__
         print("markdown-katex version: ", version)
 
-    binpath = markdown_katex.get_bin_path()
-    return sp.check_call([str(binpath)] + list(args))
+    bin_cmd = markdown_katex.get_bin_cmd()
+    return sp.check_call(bin_cmd + list(args))
 
 
 if __name__ == '__main__':
