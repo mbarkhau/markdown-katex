@@ -10,7 +10,7 @@ uses KaTeX to generate html from tex.
 """
 
 
-__version__ = "v202008.1023"
+__version__ = "v202008.1024"
 
 from markdown_katex.wrapper import tex2html
 from markdown_katex.wrapper import get_bin_cmd
