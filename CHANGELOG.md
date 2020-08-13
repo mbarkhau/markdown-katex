@@ -4,6 +4,7 @@
 
  - Update KaTeX binaries to v0.12.0
  - Fix [#8](https://gitlab.com/mbarkhau/markdown-katex/-/issues/8): Update binaries...
+ - Fix [#7](https://gitlab.com/mbarkhau/markdown-katex/-/issues/7): Lookup of binaries via npx
 
 
 ## v202006.1021
