@@ -105,6 +105,7 @@ def _get_usr_parts() -> typ.Optional[typ.List[str]]:
             except sp.CalledProcessError:
                 continue
 
+            TMP_DIR.mkdir(parents=True, exist_ok=True)
             with TMP_LOCAL_CMD_CACHE.open(mode="w", encoding="utf-8") as fobj:
                 fobj.write(" ".join(local_cmd_parts))
 
