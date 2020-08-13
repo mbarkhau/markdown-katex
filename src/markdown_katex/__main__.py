@@ -67,11 +67,13 @@ def main(args: typ.Sequence[str] = sys.argv[1:]) -> ExitCode:
     if "--markdown-katex-selftest" in args:
         return _selftest()
 
+    bin_cmd = markdown_katex.get_bin_cmd()
+
     if "--version" in args or "-V" in args:
         version = markdown_katex.__version__
-        print("markdown-katex version: ", version)
+        bin_str = " ".join(bin_cmd)
+        print("markdown-katex version: ", version, f"(using binary: {bin_str})")
 
-    bin_cmd = markdown_katex.get_bin_cmd()
     return sp.check_call(bin_cmd + list(args))
 
 

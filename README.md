@@ -44,15 +44,15 @@ Code Quality/CI:
 $ pip install markdown-katex
 ...
 $ python -m markdown_katex --version
-markdown-katex version:  v202008.1023
+markdown-katex version:  v202008.1024 (using binary: /usr/local/bin/npx --no-install katex)
 0.12.0
 ```
 
 This package includes the following binaries:
 
- - `katex-v0.11.1-x86_64-Linux`
- - `katex-v0.11.1-x86_64-Macos`
- - `katex-v0.11.1-x86_64-Windows`
+ - `katex-v0.12.0-x86_64-Linux`
+ - `katex-v0.12.0-x86_64-Macos`
+ - `katex-v0.12.0-x86_64-Windows`
 
 If you are on a different platform, or want to use a more recent version of `katex-cli`, you will need to [install it via npm][href_katexinstall_cli].
 
