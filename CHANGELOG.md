@@ -1,6 +1,6 @@
 # Changelog for https://gitlab.com/mbarkhau/markdown-katex
 
-## v202008.1022
+## v202008.1023
 
  - Update KaTeX binaries to v0.12.0
  - Fix [#8](https://gitlab.com/mbarkhau/markdown-katex/-/issues/8): Update binaries...

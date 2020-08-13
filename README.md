@@ -44,7 +44,7 @@ Code Quality/CI:
 $ pip install markdown-katex
 ...
 $ python -m markdown_katex --version
-markdown-katex version:  v202008.1022
+markdown-katex version:  v202008.1023
 0.12.0
 ```
 

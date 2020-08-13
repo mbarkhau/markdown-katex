@@ -50,7 +50,7 @@ OSNAME  = platform.system()
 MACHINE = platform.machine()
 
 
-def _get_usr_bin() -> typ.Optional[typ.List[str]]:
+def _get_usr_parts() -> typ.Optional[typ.List[str]]:
     env_path = os.environ.get('PATH')
     env_paths: typ.List[pl.Path] = []
 
@@ -63,25 +63,35 @@ def _get_usr_bin() -> typ.Optional[typ.List[str]]:
         env_paths.append(FALLBACK_BIN_DIR)
 
     if OSNAME == 'Windows':
+        # whackamole
         local_bin_commands = [
             f"{CMD_NAME}.cmd",
             f"{CMD_NAME}.ps1",
             f"{CMD_NAME}.exe",
-            "npx.cmd",
-            "npx.ps1",
-            "npx.exe",
+            f"npx.cmd --no-install {CMD_NAME}",
+            f"npx.ps1 --no-install {CMD_NAME}",
+            f"npx.exe --no-install {CMD_NAME}",
         ]
     else:
-        local_bin_commands = [CMD_NAME, "npx"]
+        local_bin_commands = [CMD_NAME, f"npx --no-install {CMD_NAME}"]
 
     for path in env_paths:
         for local_cmd in local_bin_commands:
-            local_bin = path / local_cmd
-            if local_bin.is_file():
-                if local_cmd.startswith("npx"):
-                    return [str(local_bin), "--no-install", CMD_NAME]
-                else:
-                    return [str(local_bin)]
+            local_cmd_parts = local_cmd.split()
+            bin_name = local_cmd_parts[0]
+            local_bin = path / bin_name
+            if not local_bin.is_file():
+                continue
+
+            try:
+                output_data = sp.check_output(local_cmd_parts + ["--version"], stderr=sp.STDOUT)
+                output_text = output_data.decode("utf-8")
+                if re.match(r"\d+\.\d+\.\d+", output_text.strip()) is None:
+                    continue
+            except sp.CalledProcessError:
+                continue
+
+            return local_cmd_parts
 
     return None
 
@@ -105,7 +115,7 @@ def _get_pkg_bin_path(osname: str = OSNAME, machine: str = MACHINE) -> pl.Path:
 
 
 def get_bin_cmd() -> typ.List[str]:
-    usr_bin_cmd = _get_usr_bin()
+    usr_bin_cmd = _get_usr_parts()
     if usr_bin_cmd is None:
         # use packaged binary
         return [str(_get_pkg_bin_path())]
