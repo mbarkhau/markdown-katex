@@ -44,27 +44,30 @@ KATEX_OUTPUT_ENCODING = "UTF-8"
 
 CMD_NAME = "katex"
 
+# local cache so we don't have to validate the command every time
+TMP_LOCAL_CMD_CACHE = TMP_DIR / "local_katex_cmd.txt"
 
 # https://pymotw.com/3/platform/
 OSNAME  = platform.system()
 MACHINE = platform.machine()
 
 
-def _get_usr_parts() -> typ.Optional[typ.List[str]]:
+def _get_env_paths() -> typ.Iterable[pl.Path]:
     env_path = os.environ.get('PATH')
-    env_paths: typ.List[pl.Path] = []
-
     if env_path:
         path_strs = env_path.split(os.pathsep)
-        env_paths.extend([pl.Path(p) for p in path_strs])
+        for path_str in path_strs:
+            yield pl.Path(path_str)
 
     # search in fallback bin dir regardless of path
-    if FALLBACK_BIN_DIR not in env_paths:
-        env_paths.append(FALLBACK_BIN_DIR)
+    if env_path is None or str(FALLBACK_BIN_DIR) not in env_path:
+        yield FALLBACK_BIN_DIR
 
+
+def _get_local_bin_candidates() -> typ.List[str]:
     if OSNAME == 'Windows':
         # whackamole
-        local_bin_commands = [
+        return [
             f"{CMD_NAME}.cmd",
             f"{CMD_NAME}.ps1",
             f"{CMD_NAME}.exe",
@@ -73,23 +76,37 @@ def _get_usr_parts() -> typ.Optional[typ.List[str]]:
             f"npx.exe --no-install {CMD_NAME}",
         ]
     else:
-        local_bin_commands = [CMD_NAME, f"npx --no-install {CMD_NAME}"]
+        return [CMD_NAME, f"npx --no-install {CMD_NAME}"]
 
-    for path in env_paths:
-        for local_cmd in local_bin_commands:
+
+def _get_usr_parts() -> typ.Optional[typ.List[str]]:
+    if TMP_LOCAL_CMD_CACHE.exists():
+        with TMP_LOCAL_CMD_CACHE.open(mode="r", encoding="utf-8") as fobj:
+            local_cmd = typ.cast(str, fobj.read())
+
+        local_cmd_parts = local_cmd.split(" ")
+        if pl.Path(local_cmd_parts[0]).exists():
+            return local_cmd_parts
+
+    for path in _get_env_paths():
+        for local_cmd in _get_local_bin_candidates():
             local_cmd_parts = local_cmd.split()
-            bin_name = local_cmd_parts[0]
-            local_bin = path / bin_name
+            bin_name        = local_cmd_parts[0]
+            local_bin       = path / bin_name
             if not local_bin.is_file():
                 continue
+            local_cmd_parts[0] = str(local_bin)
 
             try:
-                output_data = sp.check_output(local_cmd_parts + ["--version"], stderr=sp.STDOUT)
+                output_data = sp.check_output(local_cmd_parts + ['--version'], stderr=sp.STDOUT)
                 output_text = output_data.decode("utf-8")
                 if re.match(r"\d+\.\d+\.\d+", output_text.strip()) is None:
                     continue
             except sp.CalledProcessError:
                 continue
+
+            with TMP_LOCAL_CMD_CACHE.open(mode="w", encoding="utf-8") as fobj:
+                fobj.write(" ".join(local_cmd_parts))
 
             return local_cmd_parts
 
@@ -225,11 +242,10 @@ def tex2html(tex: str, options: Options = None) -> str:
 def _cleanup_tmp_dir() -> None:
     min_mtime = time.time() - 24 * 60 * 60
     for fpath in TMP_DIR.iterdir():
-        if not fpath.is_file():
-            continue
-        mtime = fpath.stat().st_mtime
-        if mtime < min_mtime:
-            fpath.unlink()
+        if fpath.is_file():
+            mtime = fpath.stat().st_mtime
+            if mtime < min_mtime:
+                fpath.unlink()
 
 
 # NOTE: in order to not have to update the code
