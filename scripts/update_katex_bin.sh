@@ -1,6 +1,8 @@
 #!/bin/bash
 PROJECT_DIR=$PWD
 cd ../KaTeX
+npm install commander
+git checkout package.json
 git checkout master
 git pull
 TAG=$(git tag -l --sort=taggerdate | grep -E "^v[0-9]+\.[0-9]+.[0-9]+$" | tail -n 1)
