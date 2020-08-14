@@ -146,6 +146,27 @@ md_ctx = markdown.Markdown(
 raw_html_text = md_ctx.convert(md_text)
 ```
 
+You can also use markdown-katex for the conversion of individual formulas from tex to html:
+
+```python
+from markdown_katex.extension import tex2html
+
+tex_text = r"""
+\frac{1}{\left(\sqrt{\phi\sqrt{5}}-\phi\right)e^{\frac{2}{5}\pi}}=
+ 1+\frac{e^{-2\pi}} {
+   1+\frac{e^{-4\pi}} {
+     1+\frac{e^{-6\pi}} {
+       1+\frac{e^{-8\pi}} {
+         1+\cdots
+       }
+     }
+   }
+}
+"""
+options = {'no_inline_svg': True, 'insert_fonts_css': False}
+html = tex2html(tex_text, options)
+```
+
 
 [href_cben_mathdown]: https://github.com/cben/mathdown/wiki/math-in-markdown
 
