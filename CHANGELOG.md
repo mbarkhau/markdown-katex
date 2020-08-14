@@ -5,7 +5,6 @@
 Thank you to for testing, reporting issues and contributing patches:
 
 - @summersz - Richard Summers
-- @summersz - Richard Summers
 - @bluhme3 - Evan Bluhm
 - @pawamoy - Timothée Mazzucotelli
 - @briankchan
