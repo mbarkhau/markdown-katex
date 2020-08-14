@@ -123,6 +123,28 @@ The `macro-file` might looks something like this:
 \mymacro:\text{prefix #1 suffix}
 ```
 
+## WeasyPrint Integration
+
+When you generate html that is to be consumed by [WeasyPrint](https://weasyprint.org/), you need to use the `no_inline_svg=True` option. This is due to a [long standing limitation](https://github.com/Kozea/WeasyPrint/issues/75) of WeasyPrint. Without this option, some KaTeX formulas will not render properly, e.g. `\sqrt`
+
+```python
+    md_ctx = markdown.Markdown(
+        extensions=[
+            'markdown.extensions.toc',
+            'markdown.extensions.extra',
+            'markdown.extensions.abbr',
+            ...
+            'markdown_katex',
+        ],
+        extension_configs={
+            'markdown_katex': {
+                'no_inline_svg': True,      # fix for WeasyPrint
+                'insert_fonts_css': True,
+            },
+        }
+    )
+```
+
 
 [href_cben_mathdown]: https://github.com/cben/mathdown/wiki/math-in-markdown
 
