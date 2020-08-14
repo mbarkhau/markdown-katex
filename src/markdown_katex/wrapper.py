@@ -69,11 +69,11 @@ def _get_local_bin_candidates() -> typ.List[str]:
         # whackamole
         return [
             f"{CMD_NAME}.cmd",
-            f"{CMD_NAME}.ps1",
             f"{CMD_NAME}.exe",
             f"npx.cmd --no-install {CMD_NAME}",
-            f"npx.ps1 --no-install {CMD_NAME}",
             f"npx.exe --no-install {CMD_NAME}",
+            f"{CMD_NAME}.ps1",
+            f"npx.ps1 --no-install {CMD_NAME}",
         ]
     else:
         return [CMD_NAME, f"npx --no-install {CMD_NAME}"]
@@ -103,6 +103,8 @@ def _get_usr_parts() -> typ.Optional[typ.List[str]]:
                 if re.match(r"\d+\.\d+\.\d+", output_text.strip()) is None:
                     continue
             except sp.CalledProcessError:
+                continue
+            except OSError:
                 continue
 
             TMP_DIR.mkdir(parents=True, exist_ok=True)
