@@ -1,5 +1,27 @@
 # Changelog for https://gitlab.com/mbarkhau/markdown-katex
 
+## Contributors
+
+Thank you to for testing, reporting issues and contributing patches:
+
+- @summersz - Richard Summers
+- @summersz - Richard Summers
+- @bluhme3 - Evan Bluhm
+- @pawamoy - Timothée Mazzucotelli
+- @briankchan
+- @spoorendonk
+- @lisongmin
+- @alexatadi
+- @sacredfox - Akihiro Nomura
+
+
+## v202008.1025
+
+ - Fix [#9](https://gitlab.com/mbarkhau/markdown-katex/-/issues/9): Update `katex.css`
+ - Fix [#8](https://gitlab.com/mbarkhau/markdown-katex/-/issues/8): Lookup of binaries on windows
+ - Update documentation wrt. use with WeasyPrint
+
+
 ## v202008.1024
 
  - Update KaTeX binaries to v0.12.0
