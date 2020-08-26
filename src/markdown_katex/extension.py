@@ -176,7 +176,7 @@ class KatexExtension(Extension):
                 self.options[name] = val
 
         self.math_html: typ.Dict[str, str] = {}
-        super(KatexExtension, self).__init__(**kwargs)
+        super().__init__(**kwargs)
 
     def reset(self) -> None:
         self.math_html.clear()
@@ -196,7 +196,7 @@ MATH_FENCE_RE = re.compile(r"^(```|~~~)math")
 
 class KatexPreprocessor(Preprocessor):
     def __init__(self, md, ext: KatexExtension) -> None:
-        super(KatexPreprocessor, self).__init__(md)
+        super().__init__(md)
         self.ext: KatexExtension = ext
 
     def _make_tag_for_block(self, block_lines: typ.List[str]) -> str:
@@ -277,7 +277,7 @@ class KatexPreprocessor(Preprocessor):
 
 class KatexPostprocessor(Postprocessor):
     def __init__(self, md, ext: KatexExtension) -> None:
-        super(KatexPostprocessor, self).__init__(md)
+        super().__init__(md)
         self.ext: KatexExtension = ext
 
     def run(self, text: str) -> str:
