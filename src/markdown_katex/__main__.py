@@ -4,7 +4,6 @@
 #
 # Copyright (c) 2019 Manuel Barkhau (mbarkhau@gmail.com) - MIT License
 # SPDX-License-Identifier: MIT
-import os
 import sys
 import json
 import typing as typ
@@ -13,16 +12,11 @@ import subprocess as sp
 import markdown_katex
 from markdown_katex import html
 
-# To enable pretty tracebacks:
-#   echo "export ENABLE_RICH_TB=1;" >> ~/.bashrc
-if os.environ.get('ENABLE_RICH_TB') == '1':
-    try:
-        import rich.traceback
-
-        rich.traceback.install()
-    except ImportError:
-        # don't fail just because of missing dev library
-        pass
+try:
+    import pretty_traceback
+    pretty_traceback.install()
+except ImportError:
+    pass    # no need to fail because of missing dev dependency
 
 
 ExitCode = int

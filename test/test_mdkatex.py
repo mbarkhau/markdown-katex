@@ -347,16 +347,39 @@ def test_html_output():
         md_parts.append("\n\n---\n\n```math" + formula + "\n```")
 
     md_text = "# Headline\n\n" + "\n".join(md_parts)
-
-    extensions = DEFAULT_MKDOCS_EXTENSIONS + ['markdown_katex']
-    result     = md.markdown(
+    result  = md.markdown(
         md_text,
-        extensions=extensions,
+        extensions=DEFAULT_MKDOCS_EXTENSIONS + ['markdown_katex'],
         extension_configs={'markdown_katex': {'no_inline_svg': True}},
     )
+    html = """
+    <html>
+    <head>
+        <style>
+        body {
+            background: white;
+        }
+        @media print {
+            @page {
+                /* A4 - landscape */
+                padding: 0;
+                margin: 20mm;
+                size: 297mm 210mm;
+            }
+        }
+        </style>
+    </head>
+    <body>
+    {{result}}
+    </body>
+    </html>
+    """
+    html = textwrap.dedent(html.lstrip("\n"))
+    html = html.replace("{{result}}", result)
+
     tmp_file = TMP_DIR / "test_output.html"
     with tmp_file.open(mode="w", encoding="utf-8") as fobj:
-        fobj.write(result)
+        fobj.write(html)
 
 
 def test_valid_xml():

@@ -14,10 +14,8 @@ pudb
 # https://pypi.org/project/q/
 q
 
-# rich is used for more readable tracebacks during development
-# https://github.com/nir0s/backtrace
-# https://rich.readthedocs.io/en/latest/traceback.html
-rich
+# https://pypi.org/project/pretty-traceback/
+pretty-traceback
 
 # Py-Spy: A sampling profiler for Python programs.
 # https://github.com/benfred/py-spy
@@ -37,3 +35,6 @@ ipython     # nuff said
 # These get rid of some warnings related to
 # collections -> collections.abc deprication
 git+https://github.com/mcmtroffaes/pathlib2.git@develop#egg=pathlib2
+
+# for make demo_html_output
+WeasyPrint
