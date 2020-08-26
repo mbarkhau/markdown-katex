@@ -38,7 +38,7 @@ readme_renderer[md]
 twine
 
 md-toc
-straitjacket
+straitjacket>=v202008.1016
 pycalver
 lib3to6
 beautifulsoup4
