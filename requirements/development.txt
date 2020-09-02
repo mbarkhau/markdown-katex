@@ -14,6 +14,8 @@ pudb
 # https://pypi.org/project/q/
 q
 
+# pretty-traceback manipulates Python tracebacks to make
+# them more readable.
 # https://pypi.org/project/pretty-traceback/
 pretty-traceback
 

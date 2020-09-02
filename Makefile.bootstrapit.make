@@ -182,7 +182,7 @@ help:
 				helpMessage = ""; \
 			} \
 		}' \
-		makefile.bootstrapit.make makefile
+		Makefile.bootstrapit.make Makefile
 
 	@if [[ ! -f $(DEV_ENV_PY) ]]; then \
 	echo "Missing python interpreter at $(DEV_ENV_PY) !"; \
@@ -236,7 +236,7 @@ helpverbose:
 				helpMessage = ""; \
 			} \
 		}' \
-		makefile.bootstrapit.make makefile
+		Makefile.bootstrapit.make Makefile
 
 
 ## -- Project Setup --
