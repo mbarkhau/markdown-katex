@@ -84,7 +84,7 @@ def _get_usr_parts() -> typ.Optional[typ.List[str]]:
         with TMP_LOCAL_CMD_CACHE.open(mode="r", encoding="utf-8") as fobj:
             local_cmd = typ.cast(str, fobj.read())
 
-        local_cmd_parts = local_cmd.split(" ")
+        local_cmd_parts = local_cmd.split("#")
         if pl.Path(local_cmd_parts[0]).exists():
             return local_cmd_parts
 
@@ -109,7 +109,7 @@ def _get_usr_parts() -> typ.Optional[typ.List[str]]:
 
             TMP_DIR.mkdir(parents=True, exist_ok=True)
             with TMP_LOCAL_CMD_CACHE.open(mode="w", encoding="utf-8") as fobj:
-                fobj.write(" ".join(local_cmd_parts))
+                fobj.write("#".join(local_cmd_parts))
 
             return local_cmd_parts
 
