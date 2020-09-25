@@ -14,6 +14,11 @@ Thank you to for testing, reporting issues and contributing patches:
 - @sacredfox - Akihiro Nomura
 
 
+## v202008.1026
+
+ - Fix [#12](https://gitlab.com/mbarkhau/markdown-katex/-/issues/12): Bug in handling of paths with whitespace. (Thanks @summersz !)
+
+
 ## v202008.1025
 
  - Fix [#9](https://gitlab.com/mbarkhau/markdown-katex/-/issues/9): Update `katex.css`
