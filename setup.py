@@ -51,7 +51,7 @@ setuptools.setup(
     license="MIT",
     author="Manuel Barkhau",
     author_email="mbarkhau@gmail.com",
-    url="https://gitlab.com/mbarkhau/markdown-katex",
+    url="https://github.com/mbarkhau/markdown-katex",
     version="202009.1026",
     keywords="markdown katex extension",
     description="katex extension for Python Markdown",

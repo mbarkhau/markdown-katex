@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 # This file is part of the markdown-katex project
-# https://gitlab.com/mbarkhau/markdown-katex
+# https://github.com/mbarkhau/markdown-katex
 #
 # Copyright (c) 2019-2020 Manuel Barkhau (mbarkhau@gmail.com) - MIT License
 # SPDX-License-Identifier: MIT

@@ -12,7 +12,7 @@ which adds [KaTeX](https://katex.org/) support.
 
 <div align="center">
 <p align="center">
-<img src="https://gitlab.com/mbarkhau/markdown-katex/-/raw/master/markdown-katex-example.png" height=128>
+<img src="https://raw.githubusercontent.com/mbarkhau/markdown-katex/master/markdown-katex-example.png" height=128>
 </p>
 </div>
 
@@ -170,7 +170,7 @@ html = tex2html(tex_text, options)
 
 [href_cben_mathdown]: https://github.com/cben/mathdown/wiki/math-in-markdown
 
-[repo_ref]: https://gitlab.com/mbarkhau/markdown-katex
+[repo_ref]: https://github.com/mbarkhau/markdown-katex
 
 [github_build_img]: https://github.com/mbarkhau/markdown-katex/workflows/CI/badge.svg
 [github_build_ref]: https://github.com/mbarkhau/markdown-katex/actions?query=workflow%3ACI

@@ -32,7 +32,7 @@ LICENSE_ID="MIT"
 PACKAGE_NAME="markdown-katex"
 MODULE_NAME="markdown_katex"
 GIT_REPO_NAMESPACE="mbarkhau"
-GIT_REPO_DOMAIN="gitlab.com"
+GIT_REPO_DOMAIN="github.com"
 
 # PACKAGE_VERSION="v201905.0001-alpha"
 # PACKAGE_VERSION="v0.1.0"
