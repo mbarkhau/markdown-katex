@@ -334,6 +334,7 @@ def test_bin_paths():
     assert wrp._get_pkg_bin_path(machine="AMD64", osname="Windows").exists()
     assert wrp._get_pkg_bin_path(machine="x86_64", osname="Linux").exists()
     assert wrp._get_pkg_bin_path(machine="x86_64", osname="Darwin").exists()
+    assert str(wrp._get_pkg_bin_path(machine="AMD64", osname="Windows")).endswith(".exe")
 
 
 def test_html_output():

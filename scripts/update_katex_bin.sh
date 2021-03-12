@@ -30,7 +30,7 @@ mkdir -p $BIN
 
 mv cli-linux $BIN/katex_${TAG}_x86_64-Linux
 mv cli-macos $BIN/katex_${TAG}_x86_64-Darwin
-mv cli-win.exe $BIN/katex_${TAG}_x86_64-Windows
+mv cli-win.exe $BIN/katex_${TAG}_x86_64-Windows.exe
 
 ls -l $BIN/*
 file $BIN/*
