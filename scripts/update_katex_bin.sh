@@ -18,19 +18,27 @@ rm -f cli-win.exe
 
 npm install -g pkg
 npm install -g yarn
-npm install commander
 
 yarn
 yarn build
 
-pkg --target node10-win-x64,node10-linux-x64,node10-macos-x64 cli.js
+npm install commander
 
-BIN=$PROJECT_DIR/src/markdown_katex/bin
+# node10 produces smaller binaries but doesn't work for windows
+pkg --target node12-win-x64,node10-linux-x64,node10-macos-x64 cli.js
+
+BIN=${PROJECT_DIR}/src/markdown_katex/bin
 mkdir -p $BIN
 
-mv cli-linux $BIN/katex_${TAG}_x86_64-Linux
-mv cli-macos $BIN/katex_${TAG}_x86_64-Darwin
-mv cli-win.exe $BIN/katex_${TAG}_x86_64-Windows.exe
+wine cli-win.exe --version
+./cli-linux --version
+# darling cli-macos --version
+
+mv cli-win.exe $BIN/katex_${TAG}_node12_x86_64-Windows.exe
+mv cli-linux $BIN/katex_${TAG}_node10_x86_64-Linux
+mv cli-macos $BIN/katex_${TAG}_node10_x86_64-Darwin
 
 ls -l $BIN/*
 file $BIN/*
+
+echo "all ok"

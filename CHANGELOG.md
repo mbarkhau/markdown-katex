@@ -14,6 +14,11 @@ Thank you to for testing, reporting issues and contributing patches:
 - @sacredfox - Akihiro Nomura
 
 
+## v202103.1028
+
+ - Use node12 for KaTeX binary on Windows
+
+
 ## v202103.1027
 
  - Update KaTeX binaries to v0.13.0
