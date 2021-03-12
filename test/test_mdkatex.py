@@ -447,8 +447,8 @@ def test_ignore_in_non_math_block():
 
     assert result_a == result_b
     assert "<pre><code>This math is in" in result_a
-    assert '<pre><code class="python">def randint' in result_a
-    assert '<pre><code class="javascript">function randint' in result_a
+    assert re.search(r'<pre><code class="(language-)?python">def randint', result_a)
+    assert re.search(r'<pre><code class="(language-)?javascript">function randint', result_a)
 
 
 def test_macro_file():
