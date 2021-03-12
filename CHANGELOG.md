@@ -18,6 +18,7 @@ Thank you to for testing, reporting issues and contributing patches:
 
  - Update KaTeX binaries to v0.13.0
 
+
 ## v202008.1026
 
  - Fix [#12](https://gitlab.com/mbarkhau/markdown-katex/-/issues/12): Bug in handling of paths with whitespace. (Thanks @summersz !)
