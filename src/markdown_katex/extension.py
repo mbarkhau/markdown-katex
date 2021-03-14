@@ -293,12 +293,13 @@ class KatexPostprocessor(Postprocessor):
             text = KATEX_STYLES + text
 
         for marker_tag, html in self.ext.math_html.items():
-            wrapped_marker = "<p>" + marker_tag + "</p>"
-            while marker_tag in text:
-                if wrapped_marker in text:
-                    text = text.replace(wrapped_marker, html)
-                else:
-                    text = text.replace(marker_tag, html)
+            if marker_tag in text:
+                wrapped_marker = "<p>" + marker_tag + "</p>"
+                while marker_tag in text:
+                    if wrapped_marker in text:
+                        text = text.replace(wrapped_marker, html)
+                    else:
+                        text = text.replace(marker_tag, html)
             else:
                 logger.warning(f"KatexPostprocessor couldn't find: {marker_tag}")
 
