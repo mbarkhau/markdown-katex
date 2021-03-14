@@ -248,7 +248,9 @@ def test_marker_uniqueness():
     md_output = "\n".join(out_lines)
 
     assert md_output.count("span id=\"tmp_md_katex") == 3
-    marker_ids = [match.group(1) for match in re.finditer(r"span id=\"tmp_md_katex(\d+)", md_output)]
+    marker_ids = [
+        match.group(1) for match in re.finditer(r"span id=\"tmp_md_katex(\d+)", md_output)
+    ]
     assert len(set(marker_ids)) == 2
 
 
