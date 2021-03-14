@@ -14,6 +14,15 @@ Thank you to for testing, reporting issues and contributing patches:
 - @sacredfox - Akihiro Nomura
 
 
+## v202103.1029
+
+ - Fix [#14](https://gitlab.com/mbarkhau/markdown-katex/-/issues/14): Since `Markdown>=3.3` support for [Markdown in HTML][md_in_html] was broken.
+
+[md_in_html]: https://python-markdown.github.io/extensions/md_in_html/
+
+Thank you @summersz for reporting this issue.
+
+
 ## v202103.1028
 
  - Use node12 for KaTeX binary on Windows

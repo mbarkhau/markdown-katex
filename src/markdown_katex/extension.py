@@ -202,7 +202,7 @@ class KatexPreprocessor(Preprocessor):
     def _make_tag_for_block(self, block_lines: typ.List[str]) -> str:
         block_text = "\n".join(block_lines).rstrip()
         marker_id  = make_marker_id("block" + block_text)
-        marker_tag = f"<p id='katex{marker_id}'>katex{marker_id}</p>"
+        marker_tag = f"<p id=\"tmp_md_katex{marker_id}\">katex{marker_id}</p>"
 
         math_html = md_block2html(block_text, self.ext.options)
         tag_text  = f"<p>{math_html}</p>"
@@ -211,7 +211,7 @@ class KatexPreprocessor(Preprocessor):
 
     def _make_tag_for_inline(self, inline_text: str) -> str:
         marker_id  = make_marker_id("inline" + inline_text)
-        marker_tag = f"<span id='katex{marker_id}'>katex{marker_id}</span>"
+        marker_tag = f"<span id=\"tmp_md_katex{marker_id}\">katex{marker_id}</span>"
 
         math_html = md_inline2html(inline_text, self.ext.options)
         self.ext.math_html[marker_tag] = math_html
@@ -294,10 +294,11 @@ class KatexPostprocessor(Postprocessor):
 
         for marker_tag, html in self.ext.math_html.items():
             wrapped_marker = "<p>" + marker_tag + "</p>"
-            if wrapped_marker in text:
-                text = text.replace(wrapped_marker, html)
-            elif marker_tag in text:
-                text = text.replace(marker_tag, html)
+            while marker_tag in text:
+                if wrapped_marker in text:
+                    text = text.replace(wrapped_marker, html)
+                else:
+                    text = text.replace(marker_tag, html)
             else:
                 logger.warning(f"KatexPostprocessor couldn't find: {marker_tag}")
 

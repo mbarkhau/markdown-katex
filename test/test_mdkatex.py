@@ -129,6 +129,7 @@ def test_inline_multiple():
         """
     )
     result = md.markdown(md_text, extensions=['markdown_katex'])
+    assert "tmp_md_katex" not in result
     assert result.strip().startswith(ext.KATEX_STYLES.strip())
     # check that spans were added
     assert result.count('<span class="katex"><') == 3
@@ -172,6 +173,7 @@ def test_basic_block():
     expected = "<p>{}</p>".format(default_output)
 
     result = md.markdown(BASIC_BLOCK_TXT, extensions=['markdown_katex'])
+    assert "tmp_md_katex" not in result
 
     assert default_output in result
 
@@ -195,6 +197,8 @@ def test_inline_basic():
 
     inline_md_txt = INLINE_MD_TMPL.format(inline_txt, inline_txt)
     result        = md.markdown(inline_md_txt, extensions=['markdown_katex'])
+    assert "tmp_md_katex" not in result
+
     assert '<span class="katex"' in result
     assert "Headline" in result
     assert "prelude" in result
@@ -209,6 +213,7 @@ def test_trailing_whitespace():
     default_output = ext.md_block2html(BASIC_BLOCK_TXT)
 
     trailing_space_result = md.markdown(BASIC_BLOCK_TXT + "  ", extensions=['markdown_katex'])
+    assert "tmp_md_katex" not in trailing_space_result
     assert default_output in trailing_space_result
     assert "```" not in trailing_space_result
 
@@ -220,13 +225,15 @@ def test_inline_quoted():
 
     inline_md_txt = INLINE_MD_TMPL.format(inline_txt, quoted_inline_txt)
     result        = md.markdown(inline_md_txt, extensions=['markdown_katex'])
+    assert "tmp_md_katex" not in result
     assert result.count(inline_output) == 1
-    assert "span id='katex" not in result
+    assert "span id=\"katex" not in result
 
     inline_md_txt = INLINE_MD_TMPL.format(quoted_inline_txt, inline_txt)
     result        = md.markdown(inline_md_txt, extensions=['markdown_katex'])
+    assert "tmp_md_katex" not in result
     assert result.count(inline_output) == 1
-    assert "span id='katex" not in result
+    assert "span id=\"katex" not in result
 
 
 def test_marker_uniqueness():
@@ -240,8 +247,8 @@ def test_marker_uniqueness():
     out_lines = preproc.run(inline_md_txt.splitlines())
     md_output = "\n".join(out_lines)
 
-    assert md_output.count("span id='katex") == 3
-    marker_ids = [match.group(1) for match in re.finditer(r"span id='katex(\d+)", md_output)]
+    assert md_output.count("span id=\"tmp_md_katex") == 3
+    marker_ids = [match.group(1) for match in re.finditer(r"span id=\"tmp_md_katex(\d+)", md_output)]
     assert len(set(marker_ids)) == 2
 
 
@@ -264,6 +271,7 @@ def test_svg_uniqueness():
         ]
     )
     html_output = md.markdown(md_text, extensions=['markdown_katex'])
+    assert "tmp_md_katex" not in html_output
 
     # check whitespace
     assert "prefix <span " in html_output
@@ -296,6 +304,7 @@ def test_no_inline_svg():
         extensions=['markdown_katex'],
         extension_configs={'markdown_katex': {'no_inline_svg': True}},
     )
+    assert "tmp_md_katex" not in result
     assert '<span class="katex"' in result
     assert "<svg" not in result
     assert "<img" in result
@@ -307,12 +316,14 @@ def test_insert_fonts_css():
         extensions=['markdown_katex'],
         extension_configs={'markdown_katex': {'insert_fonts_css': True}},
     )
+    assert "tmp_md_katex" not in result
     assert result.startswith(ext.KATEX_STYLES.strip())
     result = md.markdown(
         BASIC_BLOCK_TXT,
         extensions=['markdown_katex'],
         extension_configs={'markdown_katex': {'insert_fonts_css': False}},
     )
+    assert "tmp_md_katex" not in result
     assert not result.startswith(ext.KATEX_STYLES.strip())
 
 
@@ -353,6 +364,7 @@ def test_html_output():
         extensions=DEFAULT_MKDOCS_EXTENSIONS + ['markdown_katex'],
         extension_configs={'markdown_katex': {'no_inline_svg': True}},
     )
+    assert "tmp_md_katex" not in result
     html = """
     <html>
     <head>
@@ -443,6 +455,8 @@ def test_ignore_in_non_math_block():
         md_text,
         extensions=DEFAULT_MKDOCS_EXTENSIONS,
     )
+    assert "tmp_md_katex" not in result_a
+    assert "tmp_md_katex" not in result_b
     assert "katex" not in result_a
     assert "katex" not in result_b
 
@@ -480,7 +494,30 @@ def test_macro_file():
             extensions=DEFAULT_MKDOCS_EXTENSIONS + ['markdown_katex'],
             extension_configs={'markdown_katex': {'no_inline_svg': True, 'macro-file': macro_file}},
         )
+        assert "tmp_md_katex" not in result
         assert "prefix" in result
         assert "interlude" in result
         assert "suffix" in result
         assert result.index("bbbBBB") < result.index("aaaAAA")
+
+
+def test_md_in_html():
+    md_text = textwrap.dedent(
+        """
+        <div markdown="1">
+        ```math
+        a^2+b^2=c^2
+        ```
+
+        $`a^3+b^3=c^3`$
+        </div>
+        """
+    )
+    result = md.markdown(
+        md_text,
+        extensions=DEFAULT_MKDOCS_EXTENSIONS + ['markdown_katex', 'extra'],
+        extension_configs={'markdown_katex': {'no_inline_svg': True}},
+    )
+    assert "tmp_md_katex" not in result
+    assert '<span class="katex-display">' in result
+    assert '<span class="katex">' in result
