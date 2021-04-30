@@ -36,20 +36,21 @@ PKG_BIN_DIR      = LIBDIR / "bin"
 FALLBACK_BIN_DIR = pl.Path("/") / "usr" / "local" / "bin"
 FALLBACK_BIN_DIR = FALLBACK_BIN_DIR.expanduser()
 
+CMD_NAME = "katex"
+
+# https://pymotw.com/3/platform/
+OSNAME  = platform.system()
+MACHINE = platform.machine()
+
+
 # NOTE (mb 2020-06-19): I have no idea if this is true and have not found a good
 #   way to test it, especially not in any cross platform way. Maybe KaTeX doesn't
 #   care and just uses the same encoding for input as for output.
 KATEX_INPUT_ENCODING  = "UTF-8"
 KATEX_OUTPUT_ENCODING = "UTF-8"
 
-CMD_NAME = "katex"
-
 # local cache so we don't have to validate the command every time
 TMP_LOCAL_CMD_CACHE = TMP_DIR / "local_katex_cmd.txt"
-
-# https://pymotw.com/3/platform/
-OSNAME  = platform.system()
-MACHINE = platform.machine()
 
 
 def _get_env_paths() -> typ.Iterable[pl.Path]:
@@ -161,6 +162,10 @@ ArgValue = typ.Union[str, int, float, bool]
 Options  = typ.Dict[str, ArgValue]
 
 
+class KatexError(Exception):
+    pass
+
+
 def _iter_cmd_parts(options: Options = None) -> typ.Iterable[str]:
     for cmd_part in get_bin_cmd():
         yield cmd_part
@@ -187,10 +192,6 @@ def _cmd_digest(tex: str, cmd_parts: typ.List[str]) -> str:
     for cmd_part in cmd_parts:
         hasher.update(cmd_part.encode("utf-8"))
     return hasher.hexdigest()
-
-
-class KatexError(Exception):
-    pass
 
 
 def _write_tex2html(cmd_parts: typ.List[str], tex: str, tmp_output_file: pl.Path) -> None:

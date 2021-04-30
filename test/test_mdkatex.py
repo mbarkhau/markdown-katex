@@ -102,7 +102,7 @@ def test_regexp():
     ]
 
     for block_text in block_texts:
-        assert ext.MATH_FENCE_RE.match(block_text)
+        assert ext.BLOCK_START_RE.match(block_text)
         assert ext.BLOCK_CLEAN_RE.match(block_text)
 
 

@@ -28,7 +28,7 @@ B64IMG_TMPL = '<img src="data:image/svg+xml;base64,{img_text}"/>'
 
 
 FENCE_RE       = re.compile(r"^(`{3,}|~{3,})")
-MATH_FENCE_RE  = re.compile(r"^(`{3,}|~{3,})math")
+BLOCK_START_RE = re.compile(r"^(`{3,}|~{3,})math")
 BLOCK_CLEAN_RE = re.compile(r"^(`{3,}|~{3,})math(.*)(\1)$", flags=re.DOTALL)
 
 
@@ -237,7 +237,7 @@ class KatexPreprocessor(Preprocessor):
                 del block_lines[:]
                 yield marker_tag
             else:
-                math_fence_match = MATH_FENCE_RE.match(line)
+                math_fence_match = BLOCK_START_RE.match(line)
                 fence_match      = FENCE_RE.match(line)
                 if math_fence_match:
                     is_in_math_fence     = True
