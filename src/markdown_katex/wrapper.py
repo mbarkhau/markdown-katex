@@ -194,6 +194,7 @@ class KatexError(Exception):
 
 
 def _write_tex2html(cmd_parts: typ.List[str], tex: str, tmp_output_file: pl.Path) -> None:
+    # pylint: disable=consider-using-with ; not supported on py27
     tmp_input_file = TMP_DIR / tmp_output_file.name.replace(".html", ".tex")
     input_data     = tex.encode(KATEX_INPUT_ENCODING)
 
