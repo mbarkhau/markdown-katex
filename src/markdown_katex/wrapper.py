@@ -194,6 +194,7 @@ class KatexError(Exception):
 
 
 def _write_tex2html(cmd_parts: typ.List[str], tex: str, tmp_output_file: pl.Path) -> None:
+    # pylint: disable=consider-using-with ; not supported on py27
     tmp_input_file = TMP_DIR / tmp_output_file.name.replace(".html", ".tex")
     input_data     = tex.encode(KATEX_INPUT_ENCODING)
 
@@ -202,23 +203,33 @@ def _write_tex2html(cmd_parts: typ.List[str], tex: str, tmp_output_file: pl.Path
         fobj.write(input_data)
 
     cmd_parts.extend(["--input", str(tmp_input_file), "--output", str(tmp_output_file)])
-    proc     = sp.Popen(cmd_parts, stdout=sp.PIPE, stderr=sp.PIPE)
-    ret_code = proc.wait()
-    if ret_code < 0:
-        signame = SIG_NAME_BY_NUM[abs(ret_code)]
-        err_msg = (
-            f"Error processing '{tex}': "
-            + "katex_cli process ended with "
-            + f"code {ret_code} ({signame})"
-        )
-        raise KatexError(err_msg)
-    elif ret_code > 0:
-        stdout  = read_output(proc.stdout)
-        errout  = read_output(proc.stderr)
-        output  = (stdout + "\n" + errout).strip()
-        err_msg = f"Error processing '{tex}': {output}"
-        raise KatexError(err_msg)
-
+    proc = None
+    try:
+        proc     = sp.Popen(cmd_parts, stdout=sp.PIPE, stderr=sp.PIPE)
+        ret_code = proc.wait()
+        if ret_code < 0:
+            signame = SIG_NAME_BY_NUM[abs(ret_code)]
+            err_msg = (
+                f"Error processing '{tex}': "
+                + "katex_cli process ended with "
+                + f"code {ret_code} ({signame})"
+            )
+            raise KatexError(err_msg)
+        elif ret_code > 0:
+            stdout  = read_output(proc.stdout)
+            errout  = read_output(proc.stderr)
+            output  = (stdout + "\n" + errout).strip()
+            err_msg = f"Error processing '{tex}': {output}"
+            raise KatexError(err_msg)
+    finally:
+        if proc is not None:
+            # It might be reasonable that Popen itself raises an
+            # exception. In such a case, proc would still be None
+            # and there is nothing to close.
+            if proc.stdout is not None:
+                proc.stdout.close()
+            if proc.stderr is not None:
+                proc.stderr.close()
     tmp_input_file.unlink()
 
 
@@ -279,10 +290,16 @@ DEFAULT_HELP_TEXT = DEFAULT_HELP_TEXT.replace("\n", " ").replace("NL", "\n")
 
 
 def _get_cmd_help_text() -> str:
+    # pylint: disable=consider-using-with ; not supported on py27
     bin_parts = get_bin_cmd()
     cmd_parts = bin_parts + ['--help']
-    proc      = sp.Popen(cmd_parts, stdout=sp.PIPE)
-    help_text = read_output(proc.stdout)
+    proc      = None
+    try:
+        proc      = sp.Popen(cmd_parts, stdout=sp.PIPE)
+        help_text = read_output(proc.stdout)
+    finally:
+        if proc is not None and proc.stdout is not None:
+            proc.stdout.close()
     return help_text
 
 
