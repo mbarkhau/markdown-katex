@@ -202,22 +202,22 @@ def _write_tex2html(cmd_parts: typ.List[str], tex: str, tmp_output_file: pl.Path
         fobj.write(input_data)
 
     cmd_parts.extend(["--input", str(tmp_input_file), "--output", str(tmp_output_file)])
-    proc     = sp.Popen(cmd_parts, stdout=sp.PIPE, stderr=sp.PIPE)
-    ret_code = proc.wait()
-    if ret_code < 0:
-        signame = SIG_NAME_BY_NUM[abs(ret_code)]
-        err_msg = (
-            f"Error processing '{tex}': "
-            + "katex_cli process ended with "
-            + f"code {ret_code} ({signame})"
-        )
-        raise KatexError(err_msg)
-    elif ret_code > 0:
-        stdout  = read_output(proc.stdout)
-        errout  = read_output(proc.stderr)
-        output  = (stdout + "\n" + errout).strip()
-        err_msg = f"Error processing '{tex}': {output}"
-        raise KatexError(err_msg)
+    with sp.Popen(cmd_parts, stdout=sp.PIPE, stderr=sp.PIPE) as proc:
+        ret_code = proc.wait()
+        if ret_code < 0:
+            signame = SIG_NAME_BY_NUM[abs(ret_code)]
+            err_msg = (
+                f"Error processing '{tex}': "
+                + "katex_cli process ended with "
+                + f"code {ret_code} ({signame})"
+            )
+            raise KatexError(err_msg)
+        elif ret_code > 0:
+            stdout  = read_output(proc.stdout)
+            errout  = read_output(proc.stderr)
+            output  = (stdout + "\n" + errout).strip()
+            err_msg = f"Error processing '{tex}': {output}"
+            raise KatexError(err_msg)
 
     tmp_input_file.unlink()
 
@@ -281,8 +281,8 @@ DEFAULT_HELP_TEXT = DEFAULT_HELP_TEXT.replace("\n", " ").replace("NL", "\n")
 def _get_cmd_help_text() -> str:
     bin_parts = get_bin_cmd()
     cmd_parts = bin_parts + ['--help']
-    proc      = sp.Popen(cmd_parts, stdout=sp.PIPE)
-    help_text = read_output(proc.stdout)
+    with sp.Popen(cmd_parts, stdout=sp.PIPE) as proc:
+        help_text = read_output(proc.stdout)
     return help_text
 
 
