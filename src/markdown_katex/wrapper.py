@@ -205,7 +205,7 @@ def _write_tex2html(cmd_parts: typ.List[str], tex: str, tmp_output_file: pl.Path
     cmd_parts.extend(["--input", str(tmp_input_file), "--output", str(tmp_output_file)])
     proc = None
     try:
-        proc = sp.Popen(cmd_parts, stdout=sp.PIPE, stderr=sp.PIPE)
+        proc     = sp.Popen(cmd_parts, stdout=sp.PIPE, stderr=sp.PIPE)
         ret_code = proc.wait()
         if ret_code < 0:
             signame = SIG_NAME_BY_NUM[abs(ret_code)]
@@ -293,9 +293,9 @@ def _get_cmd_help_text() -> str:
     # pylint: disable=consider-using-with ; not supported on py27
     bin_parts = get_bin_cmd()
     cmd_parts = bin_parts + ['--help']
-    proc = None
+    proc      = None
     try:
-        proc = sp.Popen(cmd_parts, stdout=sp.PIPE)
+        proc      = sp.Popen(cmd_parts, stdout=sp.PIPE)
         help_text = read_output(proc.stdout)
     finally:
         if proc is not None and proc.stdout is not None:
