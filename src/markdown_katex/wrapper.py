@@ -290,6 +290,7 @@ DEFAULT_HELP_TEXT = DEFAULT_HELP_TEXT.replace("\n", " ").replace("NL", "\n")
 
 
 def _get_cmd_help_text() -> str:
+    # pylint: disable=consider-using-with ; not supported on py27
     bin_parts = get_bin_cmd()
     cmd_parts = bin_parts + ['--help']
     proc = None
