@@ -5,7 +5,7 @@
 # SPDX-License-Identifier: MIT
 
 # NOTE (mb 2019-05-16): This module is substantially shared with the
-#   markdown-katex package and meaningful changes should be
+#   markdown-svgbob package and meaningful changes should be
 #   replicated there also.
 
 import os

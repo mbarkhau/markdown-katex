@@ -27,6 +27,19 @@ SVG_XMLNS = 'xmlns="http://www.w3.org/2000/svg" ' + 'xmlns:xlink="http://www.w3.
 B64IMG_TMPL = '<img src="data:image/svg+xml;base64,{img_text}"/>'
 
 
+FENCE_RE       = re.compile(r"^(`{3,}|~{3,})")
+MATH_FENCE_RE  = re.compile(r"^(`{3,}|~{3,})math")
+BLOCK_CLEAN_RE = re.compile(r"^(`{3,}|~{3,})math(.*)(\1)$", flags=re.DOTALL)
+
+
+def _clean_block_text(block_text: str) -> str:
+    block_match = BLOCK_CLEAN_RE.match(block_text)
+    if block_match:
+        return block_match.group(2)
+    else:
+        return block_text
+
+
 def make_marker_id(text: str) -> str:
     data = text.encode("utf-8")
     return hashlib.md5(data).hexdigest()
@@ -54,19 +67,6 @@ def svg2img(html: str) -> str:
             break
 
     return html
-
-
-def _clean_block_text(block_text: str) -> str:
-    if block_text.startswith("```math"):
-        block_text = block_text[len("```math") :]
-    elif block_text.startswith("~~~math"):
-        block_text = block_text[len("~~~math") :]
-
-    if block_text.endswith("```"):
-        block_text = block_text[: -len("```")]
-    elif block_text.endswith("~~~"):
-        block_text = block_text[: -len("~~~")]
-    return block_text
 
 
 def tex2html(tex: str, options: wrapper.Options = None) -> str:
@@ -188,10 +188,6 @@ class KatexExtension(Extension):
         postproc = KatexPostprocessor(md, self)
         md.postprocessors.register(postproc, name='katex_fenced_code_block', priority=0)
         md.registerExtension(self)
-
-
-FENCE_RE      = re.compile(r"^(```|~~~)")
-MATH_FENCE_RE = re.compile(r"^(```|~~~)math")
 
 
 class KatexPreprocessor(Preprocessor):

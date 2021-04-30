@@ -94,9 +94,16 @@ def test_svg2img(katex_output):
 
 
 def test_regexp():
-    assert ext.MATH_FENCE_RE.match(BASIC_BLOCK_TXT)
-    alt_block_text = BASIC_BLOCK_TXT.replace("```", "~~~")
-    assert ext.MATH_FENCE_RE.match(alt_block_text)
+    block_texts = [
+        BASIC_BLOCK_TXT,
+        BASIC_BLOCK_TXT.replace("```", "~~~"),
+        BASIC_BLOCK_TXT.replace("```", "~~~~"),
+        BASIC_BLOCK_TXT.replace("```", "````"),
+    ]
+
+    for block_text in block_texts:
+        assert ext.MATH_FENCE_RE.match(block_text)
+        assert ext.BLOCK_CLEAN_RE.match(block_text)
 
 
 INLINE_TEST_CASES = {
@@ -179,6 +186,19 @@ def test_basic_block():
 
     assert result.strip().startswith(ext.KATEX_STYLES.strip())
     assert result.endswith(expected)
+
+
+def test_block_styles():
+    assert "```" in BASIC_BLOCK_TXT
+
+    html_data = ext.md_block2html(BASIC_BLOCK_TXT)
+    assert '<span class="katex' in html_data
+    html_data = ext.md_block2html(BASIC_BLOCK_TXT.replace("```", "````"))
+    assert '<span class="katex' in html_data
+    html_data = ext.md_block2html(BASIC_BLOCK_TXT.replace("```", "~~~~"))
+    assert '<span class="katex' in html_data
+    html_data = ext.md_block2html(BASIC_BLOCK_TXT.replace("```", "~~~"))
+    assert '<span class="katex' in html_data
 
 
 BASIC_TEX = r"e^{2 \pi i \xi x}"
