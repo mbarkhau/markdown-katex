@@ -15,6 +15,11 @@ Thank you to for testing, reporting issues and contributing patches:
 - @jnsdrtlf
 
 
+## v202105.1031
+
+ - Update KaTeX binaries to v0.13.6
+
+
 ## v202104.1030
 
  - Update KaTeX binaries to v0.13.3

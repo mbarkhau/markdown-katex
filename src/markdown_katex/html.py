@@ -5,8 +5,8 @@
 # SPDX-License-Identifier: MIT
 _STYLESHEET_LINK = """
 <link rel="stylesheet"
-  href="https://cdn.jsdelivr.net/npm/katex@0.13.0/dist/katex.min.css"
-  integrity="sha384-t5CR+zwDAROtph0PXGte6ia8heboACF9R5l/DiY+WZ3P2lxNgvJkQk5n7GPvLMYw"
+  href="https://cdn.jsdelivr.net/npm/katex@0.13.6/dist/katex.min.css"
+  integrity="sha384-81hI3kRV62VEhJBKVz7JsJzaUcP5Ty/E1FFdkLh6yz8uWthgdssaWCD1j8R1r2iU"
   crossorigin="anonymous" />
 """
 
