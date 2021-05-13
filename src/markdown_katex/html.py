@@ -13,6 +13,8 @@ _STYLESHEET_LINK = """
 _KATEX_IMAGE_STYLES = """
 <style type="text/css">
     .katex img {
+      object-fit: fill;
+      padding: unset;
       display: block;
       position: absolute;
       width: 100%;
