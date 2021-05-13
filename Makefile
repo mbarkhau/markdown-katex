@@ -26,6 +26,9 @@ include Makefile.bootstrapit.make
 
 
 TMP_OUTPUT_HTML = $(shell $(DEV_ENV_PY) -c 'import test.test_mdkatex as t;print(t.TMP_DIR / "test_output.html")')
+
+TMP_OUTPUT_PNG = $(shell $(DEV_ENV_PY) -c 'import test.test_mdkatex as t;print(t.TMP_DIR / "test_output.png")')
+
 TMP_OUTPUT_PDF = $(shell $(DEV_ENV_PY) -c 'import test.test_mdkatex as t;print(t.TMP_DIR / "test_output.pdf")')
 
 
@@ -34,6 +37,9 @@ TMP_OUTPUT_PDF = $(shell $(DEV_ENV_PY) -c 'import test.test_mdkatex as t;print(t
 demo_output:
 	$(DEV_ENV_PY) -c 'import test.test_mdkatex as t;t.test_html_output()'
 	@echo "Wrote to: $(TMP_OUTPUT_HTML)"
+
+	$(DEV_ENV)/bin/weasyprint --quiet $(TMP_OUTPUT_HTML) $(TMP_OUTPUT_PNG)
+	@echo "Wrote to: $(TMP_OUTPUT_PNG)"
 
 	$(DEV_ENV)/bin/weasyprint --quiet $(TMP_OUTPUT_HTML) $(TMP_OUTPUT_PDF)
 	@echo "Wrote to: $(TMP_OUTPUT_PDF)"
