@@ -5,7 +5,7 @@ set -e;
 #   binaries. For our use case this isn't helpful as the python
 #   distribution files (.tar.gz and .whl) are already compressed
 #   anyway. Even if this gains a few %, the compressed binaries get
-#   an additional startup penaulty, which is not worth it.
+#   an additional startup penalty, which is not worth it.
 #
 # Results:
 #

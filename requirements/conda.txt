@@ -9,8 +9,8 @@
 #    and architectures you want to support. For example, pyblake2 only
 #    has binary wheels for windows on pypi, whereas there are binary
 #    packages on conda-forge (as of Sep 2018).
-#    Binary wheels are becomming more common on the pypi this is
-#    becomming, so this is less and less of an issue. Most of the time
+#    Binary wheels are becoming more common on the pypi this is
+#    becoming, so this is less and less of an issue. Most of the time
 #    it should be fine to add the dependency to pypi.txt instead.
 #
 # 2. Non python packages (nodejs, typescript).

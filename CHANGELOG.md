@@ -23,7 +23,7 @@ Thank you to for testing, reporting issues and contributing patches:
 ## v202104.1030
 
  - Update KaTeX binaries to v0.13.3
- - Fix [#4][gh_4]: Close file descriptiors of Popen
+ - Fix [#4][gh_4]: Close file descriptors of Popen
  - Add support for blocks with extra backticks
 
 [gh_4]: https://github.com/mbarkhau/markdown-katex/pull/4

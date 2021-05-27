@@ -28,7 +28,7 @@ if [[ ${BOOTSTRAPIT_DEBUG-0} == 0 ]]; then
     if [[ -f "$PROJECT_DIR/.git/config" ]]; then
         cd "$PROJECT_DIR";
         if [[ $( git diff -s --exit-code || echo "$?" ) -gt 0 ]]; then
-            echo "ABORTING!: Your repo has local changes which are not comitted."
+            echo "ABORTING!: Your repo has local changes which are not committed."
             echo "To avoid overwriting these changes, please commit your changes."
             exit 1;
         fi

@@ -84,7 +84,7 @@ There are two main advantages of this syntax:
 Hopefully other renderers will also adopt support for this syntax as:
 
  1. Rendering is done in the browser using KaTeX so implementation effort and should be minimal.
- 2. The false positive rate for existing Markdown documents is negligible (ie. existing alternate use of &dollar;&#96; syntax is minimal to non-existent).
+ 2. The false positive rate for existing Markdown documents is negligible (i.e. existing alternate use of &dollar;&#96; syntax is minimal to non-existent).
 
 
 ## Options

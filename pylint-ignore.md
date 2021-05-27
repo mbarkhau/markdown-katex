@@ -1,6 +1,6 @@
 # `pylint-ignore`
 
-**WARNING: This file is programatically generated.**
+**WARNING: This file is programmatically generated.**
 
 This file is parsed by `pylint-ignore` to determine which `pylint`
 messages should be ignored.
