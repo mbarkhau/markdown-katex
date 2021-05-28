@@ -2,7 +2,7 @@
 #   root       : Common image, both for the builder and for the final image.
 #                This contains only minimal dependencies required in both cases
 #                for miniconda and the Makefile.
-#   env_builder: stage in which the conda envrionment is created
+#   env_builder: stage in which the conda environment is created
 #                and dependencies are installed
 #   base       : the final image containing only the required environment files,
 #                and none of the infrastructure required to generate them.

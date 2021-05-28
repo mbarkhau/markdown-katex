@@ -360,7 +360,7 @@ The typical commands used during development are:
 
 Slightly less common but good to run before doing `git push`.
 
-- `make test`: Run unitests on all supported interpreters after installing
+- `make test`: Run unittests on all supported interpreters after installing
   using `python setup.py install`. This tests the code as the users of your
   library will have installed.
 - `make citest`: Run `make test` but inside a docker container, which is as
