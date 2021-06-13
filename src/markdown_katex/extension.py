@@ -261,7 +261,8 @@ class KatexPreprocessor(Preprocessor):
 
         # unclosed block
         if block_lines:
-            yield block_lines
+            for line in block_lines
+                yield line
 
     def run(self, lines: typ.List[str]) -> typ.List[str]:
         return list(self._iter_out_lines(lines))
