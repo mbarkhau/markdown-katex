@@ -13,6 +13,15 @@ Thank you to for testing, reporting issues and contributing patches:
 - @alexatadi
 - @sacredfox - Akihiro Nomura
 - @jnsdrtlf
+- @dodoni - Markus Wendt
+
+
+## v202106.1032
+
+ - Fix [#8][gh_8]: Math inside admonition
+ - Update KaTeX binaries to v0.13.11
+
+[gh_8]: https://github.com/mbarkhau/markdown-katex/issue/8
 
 
 ## v202105.1031
