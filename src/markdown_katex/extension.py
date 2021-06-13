@@ -196,18 +196,20 @@ class KatexPreprocessor(Preprocessor):
         self.ext: KatexExtension = ext
 
     def _make_tag_for_block(self, block_lines: typ.List[str]) -> str:
-        block_text = "\n".join(block_lines).rstrip()
+        indent_len  = len(block_lines[0]) - len(block_lines[0].lstrip())
+        indent_text = block_lines[0][:indent_len]
+
+        block_text = "\n".join(line[indent_len:] for line in block_lines).rstrip()
         marker_id  = make_marker_id("block" + block_text)
-        marker_tag = f"<p id=\"tmp_block_md_katex{marker_id}\">katex{marker_id}</p>"
+        marker_tag = f"tmp_block_md_katex_{marker_id}"
 
         math_html = md_block2html(block_text, self.ext.options)
-        tag_text  = f"<p>{math_html}</p>"
-        self.ext.math_html[marker_tag] = tag_text
-        return marker_tag
+        self.ext.math_html[marker_tag] = f"<p>{math_html}</p>"
+        return indent_text + marker_tag
 
     def _make_tag_for_inline(self, inline_text: str) -> str:
         marker_id  = make_marker_id("inline" + inline_text)
-        marker_tag = f"tmp_inline_md_katex{marker_id}"
+        marker_tag = f"tmp_inline_md_katex_{marker_id}"
 
         math_html = md_inline2html(inline_text, self.ext.options)
         self.ext.math_html[marker_tag] = math_html
@@ -281,26 +283,24 @@ class KatexPostprocessor(Postprocessor):
         self.ext: KatexExtension = ext
 
     def run(self, text: str) -> str:
-        if not any(marker_tag in text for marker_tag in self.ext.math_html):
-            return text
-
-        if self.ext.options:
-            insert_fonts_css = self.ext.options.get("insert_fonts_css", True)
-        else:
-            insert_fonts_css = True
-
-        if insert_fonts_css and KATEX_STYLES not in text:
-            text = KATEX_STYLES + text
-
-        for marker_tag, html in self.ext.math_html.items():
-            if marker_tag in text:
-                wrapped_marker = "<p>" + marker_tag + "</p>"
-                while marker_tag in text:
-                    if wrapped_marker in text:
-                        text = text.replace(wrapped_marker, html)
-                    else:
-                        text = text.replace(marker_tag, html)
+        if any(marker in text for marker in self.ext.math_html):
+            if self.ext.options:
+                insert_fonts_css = self.ext.options.get("insert_fonts_css", True)
             else:
-                logger.warning(f"KatexPostprocessor couldn't find: {marker_tag}")
+                insert_fonts_css = True
+
+            if insert_fonts_css and KATEX_STYLES not in text:
+                text = KATEX_STYLES + text
+
+            for marker, html in self.ext.math_html.items():
+                if marker in text:
+                    wrapped_marker = "<p>" + marker + "</p>"
+                    while marker in text:
+                        if wrapped_marker in text:
+                            text = text.replace(wrapped_marker, html)
+                        else:
+                            text = text.replace(marker, html)
+                else:
+                    logger.warning(f"KatexPostprocessor couldn't find: {marker}")
 
         return text

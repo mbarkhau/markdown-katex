@@ -267,7 +267,7 @@ def test_marker_uniqueness():
     md_output = "\n".join(out_lines)
 
     assert md_output.count("tmp_inline_md_katex") == 3
-    marker_ids = [match.group(1) for match in re.finditer(r"tmp_inline_md_katex(\d+)", md_output)]
+    marker_ids = [match.group(1) for match in re.finditer(r"tmp_inline_md_katex_(\d+)", md_output)]
     assert len(set(marker_ids)) == 2
 
 
@@ -548,11 +548,11 @@ Prelude
 !!! hint
     A block formula
 
-    ```math
+    ````math
     \\begin{gather}
      sin(x)
     \\end{gather}
-    ```
+    ````
 
     An inline $`a^3+b^3=c^3`$ formula.
 
@@ -570,3 +570,8 @@ def test_admonition():
     assert "md_katex" not in result
     assert '<span class="katex-display">' in result
     assert '<span class="katex">' in result
+
+    # is the katex inside the admonition ?
+    assert result.count('<div class="admonition ') == 1
+    assert result.index('<span class="katex-display">') > result.index('<div class="admonition ')
+    assert result.index('<span class="katex-display">') < result.index("</div>")
