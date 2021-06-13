@@ -521,7 +521,7 @@ devtest:
 		--capture=no \
 		--exitfirst \
 		--failed-first \
-		-k "$${PYTEST_FILTER}" \
+		-k "$${PYTEST_FILTER-$${FLTR}}" \
 		test/ src/;
 
 	@rm -rf "src/__pycache__";

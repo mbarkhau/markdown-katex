@@ -2,7 +2,7 @@
 # This file is part of markdown-katex.
 # https://gitlab.com/mbarkhau/markdown-katex
 #
-# Copyright (c) 2019 Manuel Barkhau (mbarkhau@gmail.com) - MIT License
+# Copyright (c) 2019-2021 Manuel Barkhau (mbarkhau@gmail.com) - MIT License
 # SPDX-License-Identifier: MIT
 
 # pytest fixtures work this way
@@ -128,15 +128,14 @@ def test_inline_parsing(line, expected):
 
 
 def test_inline_multiple():
-    md_text = textwrap.dedent(
-        """
-        # headline
+    md_text = """
+    # headline
 
-        Pre $`a+b`$ inter 1 $`c+d`$ inter 2 $`e+f`$ post
-        """
-    )
-    result = md.markdown(md_text, extensions=['markdown_katex'])
-    assert "tmp_md_katex" not in result
+    Pre $`a+b`$ inter 1 $`c+d`$ inter 2 $`e+f`$ post
+    """
+    md_text = textwrap.dedent(md_text)
+    result  = md.markdown(md_text, extensions=['markdown_katex'])
+    assert "md_katex" not in result
     assert result.strip().startswith(ext.KATEX_STYLES.strip())
     # check that spans were added
     assert result.count('<span class="katex"><') == 3
@@ -180,7 +179,7 @@ def test_basic_block():
     expected = "<p>{}</p>".format(default_output)
 
     result = md.markdown(BASIC_BLOCK_TXT, extensions=['markdown_katex'])
-    assert "tmp_md_katex" not in result
+    assert "md_katex" not in result
 
     assert default_output in result
 
@@ -217,7 +216,7 @@ def test_inline_basic():
 
     inline_md_txt = INLINE_MD_TMPL.format(inline_txt, inline_txt)
     result        = md.markdown(inline_md_txt, extensions=['markdown_katex'])
-    assert "tmp_md_katex" not in result
+    assert "md_katex" not in result
 
     assert '<span class="katex"' in result
     assert "Headline" in result
@@ -233,7 +232,7 @@ def test_trailing_whitespace():
     default_output = ext.md_block2html(BASIC_BLOCK_TXT)
 
     trailing_space_result = md.markdown(BASIC_BLOCK_TXT + "  ", extensions=['markdown_katex'])
-    assert "tmp_md_katex" not in trailing_space_result
+    assert "md_katex" not in trailing_space_result
     assert default_output in trailing_space_result
     assert "```" not in trailing_space_result
 
@@ -245,13 +244,13 @@ def test_inline_quoted():
 
     inline_md_txt = INLINE_MD_TMPL.format(inline_txt, quoted_inline_txt)
     result        = md.markdown(inline_md_txt, extensions=['markdown_katex'])
-    assert "tmp_md_katex" not in result
+    assert "md_katex" not in result
     assert result.count(inline_output) == 1
     assert "span id=\"katex" not in result
 
     inline_md_txt = INLINE_MD_TMPL.format(quoted_inline_txt, inline_txt)
     result        = md.markdown(inline_md_txt, extensions=['markdown_katex'])
-    assert "tmp_md_katex" not in result
+    assert "md_katex" not in result
     assert result.count(inline_output) == 1
     assert "span id=\"katex" not in result
 
@@ -267,10 +266,8 @@ def test_marker_uniqueness():
     out_lines = preproc.run(inline_md_txt.splitlines())
     md_output = "\n".join(out_lines)
 
-    assert md_output.count("span id=\"tmp_md_katex") == 3
-    marker_ids = [
-        match.group(1) for match in re.finditer(r"span id=\"tmp_md_katex(\d+)", md_output)
-    ]
+    assert md_output.count("tmp_inline_md_katex") == 3
+    marker_ids = [match.group(1) for match in re.finditer(r"tmp_inline_md_katex(\d+)", md_output)]
     assert len(set(marker_ids)) == 2
 
 
@@ -293,7 +290,7 @@ def test_svg_uniqueness():
         ]
     )
     html_output = md.markdown(md_text, extensions=['markdown_katex'])
-    assert "tmp_md_katex" not in html_output
+    assert "md_katex" not in html_output
 
     # check whitespace
     assert "prefix <span " in html_output
@@ -326,7 +323,7 @@ def test_no_inline_svg():
         extensions=['markdown_katex'],
         extension_configs={'markdown_katex': {'no_inline_svg': True}},
     )
-    assert "tmp_md_katex" not in result
+    assert "md_katex" not in result
     assert '<span class="katex"' in result
     assert "<svg" not in result
     assert "<img" in result
@@ -338,14 +335,14 @@ def test_insert_fonts_css():
         extensions=['markdown_katex'],
         extension_configs={'markdown_katex': {'insert_fonts_css': True}},
     )
-    assert "tmp_md_katex" not in result
+    assert "md_katex" not in result
     assert result.startswith(ext.KATEX_STYLES.strip())
     result = md.markdown(
         BASIC_BLOCK_TXT,
         extensions=['markdown_katex'],
         extension_configs={'markdown_katex': {'insert_fonts_css': False}},
     )
-    assert "tmp_md_katex" not in result
+    assert "md_katex" not in result
     assert not result.startswith(ext.KATEX_STYLES.strip())
 
 
@@ -386,7 +383,7 @@ def test_html_output():
         extensions=DEFAULT_MKDOCS_EXTENSIONS + ['markdown_katex'],
         extension_configs={'markdown_katex': {'no_inline_svg': True}},
     )
-    assert "tmp_md_katex" not in result
+    assert "md_katex" not in result
     html = """
     <html>
     <head>
@@ -477,8 +474,8 @@ def test_ignore_in_non_math_block():
         md_text,
         extensions=DEFAULT_MKDOCS_EXTENSIONS,
     )
-    assert "tmp_md_katex" not in result_a
-    assert "tmp_md_katex" not in result_b
+    assert "md_katex" not in result_a
+    assert "md_katex" not in result_b
     assert "katex" not in result_a
     assert "katex" not in result_b
 
@@ -516,7 +513,7 @@ def test_macro_file():
             extensions=DEFAULT_MKDOCS_EXTENSIONS + ['markdown_katex'],
             extension_configs={'markdown_katex': {'no_inline_svg': True, 'macro-file': macro_file}},
         )
-        assert "tmp_md_katex" not in result
+        assert "md_katex" not in result
         assert "prefix" in result
         assert "interlude" in result
         assert "suffix" in result
@@ -540,6 +537,36 @@ def test_md_in_html():
         extensions=DEFAULT_MKDOCS_EXTENSIONS + ['markdown_katex', 'extra'],
         extension_configs={'markdown_katex': {'no_inline_svg': True}},
     )
-    assert "tmp_md_katex" not in result
+    assert "md_katex" not in result
+    assert '<span class="katex-display">' in result
+    assert '<span class="katex">' in result
+
+
+ADMONITON_FIXTURE = """
+Prelude
+
+!!! hint
+    A block formula
+
+    ```math
+    \\begin{gather}
+     sin(x)
+    \\end{gather}
+    ```
+
+    An inline $`a^3+b^3=c^3`$ formula.
+
+Postscript
+"""
+
+
+def test_admonition():
+    result = md.markdown(
+        ADMONITON_FIXTURE,
+        extensions=DEFAULT_MKDOCS_EXTENSIONS + ['markdown_katex', 'extra', 'admonition'],
+        extension_configs={'markdown_katex': {'no_inline_svg': True}},
+    )
+
+    assert "md_katex" not in result
     assert '<span class="katex-display">' in result
     assert '<span class="katex">' in result

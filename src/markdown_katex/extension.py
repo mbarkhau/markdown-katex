@@ -27,15 +27,15 @@ SVG_XMLNS = 'xmlns="http://www.w3.org/2000/svg" ' + 'xmlns:xlink="http://www.w3.
 B64IMG_TMPL = '<img src="data:image/svg+xml;base64,{img_text}"/>'
 
 
-FENCE_RE       = re.compile(r"^(`{3,}|~{3,})")
-BLOCK_START_RE = re.compile(r"^(`{3,}|~{3,})math")
-BLOCK_CLEAN_RE = re.compile(r"^(`{3,}|~{3,})math(.*)(\1)$", flags=re.DOTALL)
+FENCE_RE       = re.compile(r"^(\s*)(`{3,}|~{3,})")
+BLOCK_START_RE = re.compile(r"^(\s*)(`{3,}|~{3,})math")
+BLOCK_CLEAN_RE = re.compile(r"^(\s*)(`{3,}|~{3,})math(.*)(\2)$", flags=re.DOTALL)
 
 
 def _clean_block_text(block_text: str) -> str:
     block_match = BLOCK_CLEAN_RE.match(block_text)
     if block_match:
-        return block_match.group(2)
+        return block_match.group(3)
     else:
         return block_text
 
@@ -198,7 +198,7 @@ class KatexPreprocessor(Preprocessor):
     def _make_tag_for_block(self, block_lines: typ.List[str]) -> str:
         block_text = "\n".join(block_lines).rstrip()
         marker_id  = make_marker_id("block" + block_text)
-        marker_tag = f"<p id=\"tmp_md_katex{marker_id}\">katex{marker_id}</p>"
+        marker_tag = f"<p id=\"tmp_block_md_katex{marker_id}\">katex{marker_id}</p>"
 
         math_html = md_block2html(block_text, self.ext.options)
         tag_text  = f"<p>{math_html}</p>"
@@ -207,7 +207,7 @@ class KatexPreprocessor(Preprocessor):
 
     def _make_tag_for_inline(self, inline_text: str) -> str:
         marker_id  = make_marker_id("inline" + inline_text)
-        marker_tag = f"<span id=\"tmp_md_katex{marker_id}\">katex{marker_id}</span>"
+        marker_tag = f"tmp_inline_md_katex{marker_id}"
 
         math_html = md_inline2html(inline_text, self.ext.options)
         self.ext.math_html[marker_tag] = math_html
@@ -223,29 +223,29 @@ class KatexPreprocessor(Preprocessor):
         for line in lines:
             if is_in_fence:
                 yield line
-                is_ending_fence = line.strip() == expected_close_fence
+                is_ending_fence = line.rstrip() == expected_close_fence
                 if is_ending_fence:
                     is_in_fence = False
             elif is_in_math_fence:
                 block_lines.append(line)
-                is_ending_fence = line.strip() == expected_close_fence
-                if not is_ending_fence:
-                    continue
-
-                is_in_math_fence = False
-                marker_tag       = self._make_tag_for_block(block_lines)
-                del block_lines[:]
-                yield marker_tag
+                is_ending_fence = line.rstrip() == expected_close_fence
+                if is_ending_fence:
+                    is_in_math_fence = False
+                    marker_tag       = self._make_tag_for_block(block_lines)
+                    del block_lines[:]
+                    yield marker_tag
             else:
                 math_fence_match = BLOCK_START_RE.match(line)
                 fence_match      = FENCE_RE.match(line)
                 if math_fence_match:
                     is_in_math_fence     = True
-                    expected_close_fence = math_fence_match.group(1)
+                    prefix               = math_fence_match.group(1)
+                    expected_close_fence = prefix + math_fence_match.group(2)
                     block_lines.append(line)
                 elif fence_match:
                     is_in_fence          = True
-                    expected_close_fence = fence_match.group(1)
+                    prefix               = fence_match.group(1)
+                    expected_close_fence = prefix + fence_match.group(2)
                     yield line
                 else:
                     inline_codes = list(iter_inline_katex(line))
@@ -256,6 +256,10 @@ class KatexPreprocessor(Preprocessor):
                         line       = line[: code.start] + marker_tag + line[code.end :]
 
                     yield line
+
+        # unclosed block
+        if block_lines:
+            yield block_lines
 
     def run(self, lines: typ.List[str]) -> typ.List[str]:
         return list(self._iter_out_lines(lines))
