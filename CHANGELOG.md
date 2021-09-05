@@ -16,6 +16,11 @@ Thank you to for testing, reporting issues and contributing patches:
 - @dodoni - Markus Wendt
 
 
+## v202106.1033
+
+ - Update KaTeX binaries to v0.13.18
+
+
 ## v202106.1032
 
  - Fix [#8][gh_8]: Math inside admonition
