@@ -14,7 +14,7 @@ from markdown.extensions import Extension
 from markdown.preprocessors import Preprocessor
 from markdown.postprocessors import Postprocessor
 
-import markdown_katex.wrapper as wrapper
+from markdown_katex import wrapper
 from markdown_katex.html import KATEX_STYLES
 
 logger = logging.getLogger(__name__)
