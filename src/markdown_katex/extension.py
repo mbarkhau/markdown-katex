@@ -297,7 +297,7 @@ class KatexPostprocessor(Postprocessor):
                 if marker in text:
                     wrapped_marker = "<p>" + marker + "</p>"
                     while marker in text:
-                        if wrapped_marker in text:
+                        if marker.startswith('tmp_block') and wrapped_marker in text:
                             text = text.replace(wrapped_marker, html)
                         else:
                             text = text.replace(marker, html)
