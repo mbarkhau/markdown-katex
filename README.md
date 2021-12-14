@@ -45,21 +45,21 @@ $ pip install markdown-katex
 ...
 $ python -m markdown_katex --version
 markdown-katex version:  v202109.1033 (using binary: /usr/local/bin/npx --no-install katex)
-0.13.18
+0.15.1
 ```
 
 This package includes the following binaries:
 
- - `katex_v0.13.18_node10_x86_64_Linux`
- _ `katex_v0.13.18_node10_x86_64_Darwin`
- _ `katex_v0.13.18_node12_x86_64_Windows`
+ - `katex_v0.15.1_node10_x86_64_Linux`
+ _ `katex_v0.15.1_node10_x86_64_Darwin`
+ _ `katex_v0.15.1_node12_x86_64_Windows`
 
 If you are on a different platform, or want to use a more recent version of `katex-cli`, you will need to [install it via npm][href_katexinstall_cli].
 
 ```bash
 $ npx katex
 $ npx katex --version
-0.13.18
+0.15.1
 ```
 
 This extension will always use the locally installed version of KaTeX if it is available, instead of using the implementation bundled with this package.
