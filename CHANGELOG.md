@@ -19,7 +19,7 @@ Thank you to for testing, reporting issues and contributing patches:
 ## v202112.1034
 
  - Update KaTeX binaries to v0.15.1
- - Fix [#13][gh_13]:
+ - Fix [#13][gh_13]: Don't strip `<p></p>` when using inline syntax for a single equation.
 
 [gh_13]: https://github.com/mbarkhau/markdown-katex/issue/13
 

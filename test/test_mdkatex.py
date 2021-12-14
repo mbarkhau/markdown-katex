@@ -575,3 +575,20 @@ def test_admonition():
     assert result.count('<div class="admonition ') == 1
     assert result.index('<span class="katex-display">') > result.index('<div class="admonition ')
     assert result.index('<span class="katex-display">') < result.index("</div>")
+
+
+
+PARAGRAPH_FOR_INLINE_EQUATION_FIXTURE = """
+$`e=mc^2`$
+
+$`y=mx+c`$
+"""
+
+
+def test_paragraph_for_inline_equation():
+    result = md.markdown(
+        PARAGRAPH_FOR_INLINE_EQUATION_FIXTURE,
+        extensions=DEFAULT_MKDOCS_EXTENSIONS + ['markdown_katex'],
+    )
+
+    assert result.count("<p><span") == 2

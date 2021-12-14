@@ -294,8 +294,16 @@ class KatexPostprocessor(Postprocessor):
                 text = KATEX_STYLES + text
 
             for marker, html in self.ext.math_html.items():
+                is_block = marker.startswith("tmp_block_md_katex_")
+                is_inline = marker.startswith("tmp_inline_md_katex_")
+                assert is_block or is_inline
+
                 if marker in text:
-                    wrapped_marker = "<p>" + marker + "</p>"
+                    if is_block:
+                        wrapped_marker = "<p>" + marker + "</p>"
+                    else:
+                        wrapped_marker = marker
+
                     while marker in text:
                         if wrapped_marker in text:
                             text = text.replace(wrapped_marker, html)
