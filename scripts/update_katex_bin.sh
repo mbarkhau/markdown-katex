@@ -5,7 +5,7 @@ PROJECT_DIR=$PWD
 cd ../KaTeX
 
 git checkout .
-git checkout master
+git checkout main
 git pull
 
 TAG=$(git tag -l --sort=taggerdate | grep -E "^v[0-9]+\.[0-9]+.[0-9]+$" | sort --version-sort | tail -n 1)
