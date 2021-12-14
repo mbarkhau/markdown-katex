@@ -577,7 +577,6 @@ def test_admonition():
     assert result.index('<span class="katex-display">') < result.index("</div>")
 
 
-
 PARAGRAPH_FOR_INLINE_EQUATION_FIXTURE = """
 $`e=mc^2`$
 
