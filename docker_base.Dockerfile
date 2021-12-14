@@ -9,7 +9,6 @@
 
 FROM registry.gitlab.com/mbarkhau/bootstrapit/env_builder AS builder
 
-ADD requirements/ requirements/
 ADD scripts/ scripts/
 
 ADD Makefile.bootstrapit.make Makefile.bootstrapit.make
