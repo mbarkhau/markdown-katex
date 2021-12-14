@@ -9,6 +9,7 @@
 # pylint: disable=redefined-outer-name
 # for wrp._get_pkg_bin_path
 # pylint: disable=protected-access
+# pylint: consider-using-f-string
 
 from __future__ import division
 from __future__ import print_function
