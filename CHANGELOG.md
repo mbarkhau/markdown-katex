@@ -16,6 +16,14 @@ Thank you to for testing, reporting issues and contributing patches:
 - @dodoni - Markus Wendt
 
 
+## v202112.1034
+
+ - Update KaTeX binaries to v0.15.1
+ - Fix [#13][gh_13]:
+
+[gh_13]: https://github.com/mbarkhau/markdown-katex/issue/13
+
+
 ## v202106.1033
 
  - Update KaTeX binaries to v0.13.18
