@@ -20,7 +20,7 @@ Project/Repo:
 
 [![MIT License][license_img]][license_ref]
 [![Supported Python Versions][pyversions_img]][pyversions_ref]
-[![CalVer v202109.1033][version_img]][version_ref]
+[![CalVer v202112.1034][version_img]][version_ref]
 [![PyPI Version][pypi_img]][pypi_ref]
 [![PyPI Downloads][downloads_img]][downloads_ref]
 
@@ -44,7 +44,7 @@ Code Quality/CI:
 $ pip install markdown-katex
 ...
 $ python -m markdown_katex --version
-markdown-katex version:  v202109.1033 (using binary: /usr/local/bin/npx --no-install katex)
+markdown-katex version:  v202112.1034 (using binary: /usr/local/bin/npx --no-install katex)
 0.15.1
 ```
 
@@ -196,7 +196,7 @@ html = tex2html(tex_text, options)
 [downloads_img]: https://pepy.tech/badge/markdown-katex/month
 [downloads_ref]: https://pepy.tech/project/markdown-katex
 
-[version_img]: https://img.shields.io/static/v1.svg?label=CalVer&message=v202109.1033&color=blue
+[version_img]: https://img.shields.io/static/v1.svg?label=CalVer&message=v202112.1034&color=blue
 [version_ref]: https://pypi.org/project/bumpver/
 
 [pyversions_img]: https://img.shields.io/pypi/pyversions/markdown-katex.svg
