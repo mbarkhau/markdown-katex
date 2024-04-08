@@ -18,7 +18,11 @@ import platform
 import tempfile
 import subprocess as sp
 
-import pathlib2 as pl
+try:
+    from pathlib import Path
+except ImportError:
+    from pathlib2 import Path  # type: ignore
+
 
 SIG_NAME_BY_NUM = {
     k: v
@@ -29,11 +33,11 @@ SIG_NAME_BY_NUM = {
 assert SIG_NAME_BY_NUM[15] == 'SIGTERM'
 
 
-TMP_DIR = pl.Path(tempfile.mkdtemp("mdkatex"))
+TMP_DIR = Path(tempfile.mkdtemp("mdkatex"))
 
-LIBDIR: pl.Path = pl.Path(__file__).parent
+LIBDIR: Path = Path(__file__).parent
 PKG_BIN_DIR      = LIBDIR / "bin"
-FALLBACK_BIN_DIR = pl.Path("/") / "usr" / "local" / "bin"
+FALLBACK_BIN_DIR = Path("/") / "usr" / "local" / "bin"
 FALLBACK_BIN_DIR = FALLBACK_BIN_DIR.expanduser()
 
 CMD_NAME = "katex"
@@ -53,12 +57,12 @@ KATEX_OUTPUT_ENCODING = "UTF-8"
 TMP_LOCAL_CMD_CACHE = TMP_DIR / "local_katex_cmd.txt"
 
 
-def _get_env_paths() -> typ.Iterable[pl.Path]:
+def _get_env_paths() -> typ.Iterable[Path]:
     env_path = os.environ.get('PATH')
     if env_path:
         path_strs = env_path.split(os.pathsep)
         for path_str in path_strs:
-            yield pl.Path(path_str)
+            yield Path(path_str)
 
     # search in fallback bin dir regardless of path
     if env_path is None or str(FALLBACK_BIN_DIR) not in env_path:
@@ -83,10 +87,10 @@ def _get_local_bin_candidates() -> typ.List[str]:
 def _get_usr_parts() -> typ.Optional[typ.List[str]]:
     if TMP_LOCAL_CMD_CACHE.exists():
         with TMP_LOCAL_CMD_CACHE.open(mode="r", encoding="utf-8") as fobj:
-            local_cmd = typ.cast(str, fobj.read())
+            local_cmd: str = fobj.read()
 
         local_cmd_parts = local_cmd.split("\n")
-        if pl.Path(local_cmd_parts[0]).exists():
+        if Path(local_cmd_parts[0]).exists():
             return local_cmd_parts
 
     for path in _get_env_paths():
@@ -117,7 +121,7 @@ def _get_usr_parts() -> typ.Optional[typ.List[str]]:
     return None
 
 
-def _get_pkg_bin_path(osname: str = OSNAME, machine: str = MACHINE) -> pl.Path:
+def _get_pkg_bin_path(osname: str = OSNAME, machine: str = MACHINE) -> Path:
     if machine == 'AMD64':
         machine = 'x86_64'
     glob_expr = f"*_{machine}-{osname}*"
@@ -158,15 +162,16 @@ def read_output(buf: typ.Optional[typ.IO[bytes]]) -> str:
     return b"".join(_iter_output_lines(buf)).decode("utf-8")
 
 
-ArgValue = typ.Union[str, int, float, bool]
-Options  = typ.Dict[str, ArgValue]
+ArgValue     = typ.Union[str, int, float, bool]
+Options      = typ.Dict[str, ArgValue]
+MaybeOptions = typ.Optional[Options]
 
 
 class KatexError(Exception):
     pass
 
 
-def _iter_cmd_parts(options: Options = None) -> typ.Iterable[str]:
+def _iter_cmd_parts(options: MaybeOptions = None) -> typ.Iterable[str]:
     for cmd_part in get_bin_cmd():
         yield cmd_part
 
@@ -194,7 +199,7 @@ def _cmd_digest(tex: str, cmd_parts: typ.List[str]) -> str:
     return hasher.hexdigest()
 
 
-def _write_tex2html(cmd_parts: typ.List[str], tex: str, tmp_output_file: pl.Path) -> None:
+def _write_tex2html(cmd_parts: typ.List[str], tex: str, tmp_output_file: Path) -> None:
     # pylint: disable=consider-using-with ; not supported on py27
     tmp_input_file = TMP_DIR / tmp_output_file.name.replace(".html", ".tex")
     input_data     = tex.encode(KATEX_INPUT_ENCODING)
@@ -234,7 +239,7 @@ def _write_tex2html(cmd_parts: typ.List[str], tex: str, tmp_output_file: pl.Path
     tmp_input_file.unlink()
 
 
-def tex2html(tex: str, options: Options = None) -> str:
+def tex2html(tex: str, options: MaybeOptions = None) -> str:
     cmd_parts       = list(_iter_cmd_parts(options))
     digest          = _cmd_digest(tex, cmd_parts)
     tmp_filename    = digest + ".html"
@@ -248,7 +253,7 @@ def tex2html(tex: str, options: Options = None) -> str:
             _write_tex2html(cmd_parts, tex, tmp_output_file)
 
         with tmp_output_file.open(mode="r", encoding=KATEX_OUTPUT_ENCODING) as fobj:
-            result = typ.cast(str, fobj.read())
+            result: str = fobj.read()
             return result.strip()
     finally:
         _cleanup_tmp_dir()

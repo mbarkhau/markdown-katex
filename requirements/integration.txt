@@ -20,11 +20,14 @@ flake8-comprehensions
 flake8-junit-report
 pylint==2.12.1
 pylint-ignore>=2020.1013
-mypy
+
 types-Markdown
 # pylint doesn't support isort>=5 for now
 #   https://github.com/PyCQA/pylint/issues/3722
 isort<5
+
+mypy==1.4.1
+mypy-extensions==1.0.0
 
 # http://doc.pytest.org/en/latest/py27-py34-deprecation.html
 # The pytest 4.6 series will be the last to support Python 2.7

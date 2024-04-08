@@ -69,7 +69,7 @@ def svg2img(html: str) -> str:
     return html
 
 
-def tex2html(tex: str, options: wrapper.Options = None) -> str:
+def tex2html(tex: str, options: wrapper.MaybeOptions = None) -> str:
     if options:
         no_inline_svg = options.get("no_inline_svg", False)
     else:
@@ -86,7 +86,7 @@ def tex2html(tex: str, options: wrapper.Options = None) -> str:
     return result
 
 
-def md_block2html(block_text: str, default_options: wrapper.Options = None) -> str:
+def md_block2html(block_text: str, default_options: wrapper.MaybeOptions = None) -> str:
     options: wrapper.Options = {'display-mode': True}
 
     if default_options:
@@ -113,7 +113,7 @@ def _clean_inline_text(inline_text: str) -> str:
     return inline_text
 
 
-def md_inline2html(inline_text: str, default_options: wrapper.Options = None) -> str:
+def md_inline2html(inline_text: str, default_options: wrapper.MaybeOptions = None) -> str:
     options     = default_options.copy() if default_options else {}
     inline_text = _clean_inline_text(inline_text)
     return tex2html(inline_text, options)
