@@ -33,7 +33,8 @@ SIG_NAME_BY_NUM = {
 assert SIG_NAME_BY_NUM[15] == 'SIGTERM'
 
 
-TMP_DIR = Path(tempfile.mkdtemp("mdkatex"))
+# TMP_DIR = Path(tempfile.mkdtemp("mdkatex"))
+TMP_DIR = Path(tempfile.gettempdir()) / "mdkatex"
 
 LIBDIR: Path = Path(__file__).parent
 PKG_BIN_DIR      = LIBDIR / "bin"
