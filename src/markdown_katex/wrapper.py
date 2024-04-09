@@ -16,6 +16,7 @@ import typing as typ
 import hashlib
 import platform
 import tempfile
+import contextlib
 import subprocess as sp
 
 try:
@@ -33,8 +34,7 @@ SIG_NAME_BY_NUM = {
 assert SIG_NAME_BY_NUM[15] == 'SIGTERM'
 
 
-# TMP_DIR = Path(tempfile.mkdtemp("mdkatex"))
-TMP_DIR = Path(tempfile.gettempdir()) / "mdkatex"
+CACHE_DIR = Path(tempfile.gettempdir()) / "mdkatex"
 
 LIBDIR: Path = Path(__file__).parent
 PKG_BIN_DIR      = LIBDIR / "bin"
@@ -55,7 +55,15 @@ KATEX_INPUT_ENCODING  = "UTF-8"
 KATEX_OUTPUT_ENCODING = "UTF-8"
 
 # local cache so we don't have to validate the command every time
-TMP_LOCAL_CMD_CACHE = TMP_DIR / "local_katex_cmd.txt"
+LOCAL_CMD_CACHE = CACHE_DIR / "local_katex_cmd.txt"
+
+
+@contextlib.contextmanager
+def _atomic_writable_path(final_path: Path):
+    nonce    = hashlib.sha1(os.urandom(8)).hexdigest()
+    tmp_path = final_path.parent / (final_path.name + "_tmp_" + nonce)
+    yield tmp_path
+    tmp_path.rename(final_path)
 
 
 def _get_env_paths() -> typ.Iterable[Path]:
@@ -86,8 +94,8 @@ def _get_local_bin_candidates() -> typ.List[str]:
 
 
 def _get_usr_parts() -> typ.Optional[typ.List[str]]:
-    if TMP_LOCAL_CMD_CACHE.exists():
-        with TMP_LOCAL_CMD_CACHE.open(mode="r", encoding="utf-8") as fobj:
+    if LOCAL_CMD_CACHE.exists():
+        with LOCAL_CMD_CACHE.open(mode="r", encoding="utf-8") as fobj:
             local_cmd: str = fobj.read()
 
         local_cmd_parts = local_cmd.split("\n")
@@ -113,9 +121,12 @@ def _get_usr_parts() -> typ.Optional[typ.List[str]]:
             except OSError:
                 continue
 
-            TMP_DIR.mkdir(parents=True, exist_ok=True)
-            with TMP_LOCAL_CMD_CACHE.open(mode="w", encoding="utf-8") as fobj:
-                fobj.write("\n".join(local_cmd_parts))
+            CACHE_DIR.mkdir(parents=True, exist_ok=True)
+            local_cmd_data = "\n".join(local_cmd_parts).encode("utf-8")
+
+            with _atomic_writable_path(LOCAL_CMD_CACHE) as tmp_path:
+                with tmp_path.open(mode="wb") as fobj:
+                    fobj.write(local_cmd_data)
 
             return local_cmd_parts
 
@@ -202,12 +213,13 @@ def _cmd_digest(tex: str, cmd_parts: typ.List[str]) -> str:
 
 def _write_tex2html(cmd_parts: typ.List[str], tex: str, tmp_output_file: Path) -> None:
     # pylint: disable=consider-using-with ; not supported on py27
-    tmp_input_file = TMP_DIR / tmp_output_file.name.replace(".html", ".tex")
+    tmp_input_file = CACHE_DIR / tmp_output_file.name.replace(".html", ".tex")
     input_data     = tex.encode(KATEX_INPUT_ENCODING)
 
-    TMP_DIR.mkdir(parents=True, exist_ok=True)
-    with tmp_input_file.open(mode="wb") as fobj:
-        fobj.write(input_data)
+    CACHE_DIR.mkdir(parents=True, exist_ok=True)
+    with _atomic_writable_path(tmp_input_file) as tmp_path:
+        with tmp_path.open(mode="wb") as fobj:
+            fobj.write(input_data)
 
     cmd_parts.extend(["--input", str(tmp_input_file), "--output", str(tmp_output_file)])
     proc = None
@@ -237,32 +249,41 @@ def _write_tex2html(cmd_parts: typ.List[str], tex: str, tmp_output_file: Path) -
                 proc.stdout.close()
             if proc.stderr is not None:
                 proc.stderr.close()
-    tmp_input_file.unlink()
+
+    try:
+        tmp_input_file.unlink()
+    except FileNotFoundError:
+        # A concurrent mdkatex process may have removed the
+        # input (.tex) file, but that's ok as we only care
+        # about the output file and one or the other process
+        # will have written that.
+        pass
 
 
 def tex2html(tex: str, options: MaybeOptions = None) -> str:
-    cmd_parts       = list(_iter_cmd_parts(options))
-    digest          = _cmd_digest(tex, cmd_parts)
-    tmp_filename    = digest + ".html"
-    tmp_output_file = TMP_DIR / tmp_filename
+    cmd_parts         = list(_iter_cmd_parts(options))
+    digest            = _cmd_digest(tex, cmd_parts)
+    cache_filename    = digest + ".html"
+    cache_output_file = CACHE_DIR / cache_filename
 
     try:
-        if tmp_output_file.exists():
+        if cache_output_file.exists():
             # give cached file a life extension (update mtime)
-            tmp_output_file.touch()
+            cache_output_file.touch()
         else:
-            _write_tex2html(cmd_parts, tex, tmp_output_file)
+            with _atomic_writable_path(cache_output_file) as tmp_output_file:
+                _write_tex2html(cmd_parts, tex, tmp_output_file)
 
-        with tmp_output_file.open(mode="r", encoding=KATEX_OUTPUT_ENCODING) as fobj:
+        with cache_output_file.open(mode="r", encoding=KATEX_OUTPUT_ENCODING) as fobj:
             result: str = fobj.read()
             return result.strip()
     finally:
-        _cleanup_tmp_dir()
+        _cleanup_cache_dir()
 
 
-def _cleanup_tmp_dir() -> None:
+def _cleanup_cache_dir() -> None:
     min_mtime = time.time() - 24 * 60 * 60
-    for fpath in TMP_DIR.iterdir():
+    for fpath in CACHE_DIR.iterdir():
         if fpath.is_file():
             mtime = fpath.stat().st_mtime
             if mtime < min_mtime:
