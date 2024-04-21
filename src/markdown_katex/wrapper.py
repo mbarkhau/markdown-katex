@@ -284,10 +284,17 @@ def tex2html(tex: str, options: MaybeOptions = None) -> str:
 def _cleanup_cache_dir() -> None:
     min_mtime = time.time() - 24 * 60 * 60
     for fpath in CACHE_DIR.iterdir():
-        if fpath.is_file():
+        try:
+            if not fpath.is_file():
+                continue
+
             mtime = fpath.stat().st_mtime
-            if mtime < min_mtime:
-                fpath.unlink()
+            if mtime > min_mtime:
+                continue
+
+            fpath.unlink()
+        except FileNotFoundError:
+            pass  # concurrent thread deleted file before we did
 
 
 # NOTE: in order to not have to update the code
