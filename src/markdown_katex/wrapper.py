@@ -16,9 +16,14 @@ import typing as typ
 import hashlib
 import platform
 import tempfile
+import contextlib
 import subprocess as sp
 
-import pathlib2 as pl
+try:
+    from pathlib import Path
+except ImportError:
+    from pathlib2 import Path  # type: ignore
+
 
 SIG_NAME_BY_NUM = {
     k: v
@@ -29,11 +34,11 @@ SIG_NAME_BY_NUM = {
 assert SIG_NAME_BY_NUM[15] == 'SIGTERM'
 
 
-TMP_DIR = pl.Path(tempfile.gettempdir()) / "mdkatex"
+CACHE_DIR = Path(tempfile.gettempdir()) / "mdkatex"
 
-LIBDIR: pl.Path = pl.Path(__file__).parent
+LIBDIR: Path = Path(__file__).parent
 PKG_BIN_DIR      = LIBDIR / "bin"
-FALLBACK_BIN_DIR = pl.Path("/") / "usr" / "local" / "bin"
+FALLBACK_BIN_DIR = Path("/") / "usr" / "local" / "bin"
 FALLBACK_BIN_DIR = FALLBACK_BIN_DIR.expanduser()
 
 CMD_NAME = "katex"
@@ -50,15 +55,23 @@ KATEX_INPUT_ENCODING  = "UTF-8"
 KATEX_OUTPUT_ENCODING = "UTF-8"
 
 # local cache so we don't have to validate the command every time
-TMP_LOCAL_CMD_CACHE = TMP_DIR / "local_katex_cmd.txt"
+LOCAL_CMD_CACHE = CACHE_DIR / "local_katex_cmd.txt"
 
 
-def _get_env_paths() -> typ.Iterable[pl.Path]:
+@contextlib.contextmanager
+def _atomic_writable_path(final_path: Path):
+    nonce    = hashlib.sha1(os.urandom(8)).hexdigest()
+    tmp_path = final_path.parent / (final_path.name + "_tmp_" + nonce)
+    yield tmp_path
+    tmp_path.rename(final_path)
+
+
+def _get_env_paths() -> typ.Iterable[Path]:
     env_path = os.environ.get('PATH')
     if env_path:
         path_strs = env_path.split(os.pathsep)
         for path_str in path_strs:
-            yield pl.Path(path_str)
+            yield Path(path_str)
 
     # search in fallback bin dir regardless of path
     if env_path is None or str(FALLBACK_BIN_DIR) not in env_path:
@@ -81,12 +94,12 @@ def _get_local_bin_candidates() -> typ.List[str]:
 
 
 def _get_usr_parts() -> typ.Optional[typ.List[str]]:
-    if TMP_LOCAL_CMD_CACHE.exists():
-        with TMP_LOCAL_CMD_CACHE.open(mode="r", encoding="utf-8") as fobj:
-            local_cmd = typ.cast(str, fobj.read())
+    if LOCAL_CMD_CACHE.exists():
+        with LOCAL_CMD_CACHE.open(mode="r", encoding="utf-8") as fobj:
+            local_cmd: str = fobj.read()
 
         local_cmd_parts = local_cmd.split("\n")
-        if pl.Path(local_cmd_parts[0]).exists():
+        if Path(local_cmd_parts[0]).exists():
             return local_cmd_parts
 
     for path in _get_env_paths():
@@ -108,16 +121,19 @@ def _get_usr_parts() -> typ.Optional[typ.List[str]]:
             except OSError:
                 continue
 
-            TMP_DIR.mkdir(parents=True, exist_ok=True)
-            with TMP_LOCAL_CMD_CACHE.open(mode="w", encoding="utf-8") as fobj:
-                fobj.write("\n".join(local_cmd_parts))
+            CACHE_DIR.mkdir(parents=True, exist_ok=True)
+            local_cmd_data = "\n".join(local_cmd_parts).encode("utf-8")
+
+            with _atomic_writable_path(LOCAL_CMD_CACHE) as tmp_path:
+                with tmp_path.open(mode="wb") as fobj:
+                    fobj.write(local_cmd_data)
 
             return local_cmd_parts
 
     return None
 
 
-def _get_pkg_bin_path(osname: str = OSNAME, machine: str = MACHINE) -> pl.Path:
+def _get_pkg_bin_path(osname: str = OSNAME, machine: str = MACHINE) -> Path:
     if machine == 'AMD64':
         machine = 'x86_64'
     glob_expr = f"*_{machine}-{osname}*"
@@ -158,15 +174,16 @@ def read_output(buf: typ.Optional[typ.IO[bytes]]) -> str:
     return b"".join(_iter_output_lines(buf)).decode("utf-8")
 
 
-ArgValue = typ.Union[str, int, float, bool]
-Options  = typ.Dict[str, ArgValue]
+ArgValue     = typ.Union[str, int, float, bool]
+Options      = typ.Dict[str, ArgValue]
+MaybeOptions = typ.Optional[Options]
 
 
 class KatexError(Exception):
     pass
 
 
-def _iter_cmd_parts(options: Options = None) -> typ.Iterable[str]:
+def _iter_cmd_parts(options: MaybeOptions = None) -> typ.Iterable[str]:
     for cmd_part in get_bin_cmd():
         yield cmd_part
 
@@ -194,14 +211,15 @@ def _cmd_digest(tex: str, cmd_parts: typ.List[str]) -> str:
     return hasher.hexdigest()
 
 
-def _write_tex2html(cmd_parts: typ.List[str], tex: str, tmp_output_file: pl.Path) -> None:
+def _write_tex2html(cmd_parts: typ.List[str], tex: str, tmp_output_file: Path) -> None:
     # pylint: disable=consider-using-with ; not supported on py27
-    tmp_input_file = TMP_DIR / tmp_output_file.name.replace(".html", ".tex")
+    tmp_input_file = CACHE_DIR / tmp_output_file.name.replace(".html", ".tex")
     input_data     = tex.encode(KATEX_INPUT_ENCODING)
 
-    TMP_DIR.mkdir(parents=True, exist_ok=True)
-    with tmp_input_file.open(mode="wb") as fobj:
-        fobj.write(input_data)
+    CACHE_DIR.mkdir(parents=True, exist_ok=True)
+    with _atomic_writable_path(tmp_input_file) as tmp_path:
+        with tmp_path.open(mode="wb") as fobj:
+            fobj.write(input_data)
 
     cmd_parts.extend(["--input", str(tmp_input_file), "--output", str(tmp_output_file)])
     proc = None
@@ -231,36 +249,52 @@ def _write_tex2html(cmd_parts: typ.List[str], tex: str, tmp_output_file: pl.Path
                 proc.stdout.close()
             if proc.stderr is not None:
                 proc.stderr.close()
-    tmp_input_file.unlink()
-
-
-def tex2html(tex: str, options: Options = None) -> str:
-    cmd_parts       = list(_iter_cmd_parts(options))
-    digest          = _cmd_digest(tex, cmd_parts)
-    tmp_filename    = digest + ".html"
-    tmp_output_file = TMP_DIR / tmp_filename
 
     try:
-        if tmp_output_file.exists():
-            # give cached file a life extension (update mtime)
-            tmp_output_file.touch()
-        else:
-            _write_tex2html(cmd_parts, tex, tmp_output_file)
+        tmp_input_file.unlink()
+    except FileNotFoundError:
+        # A concurrent mdkatex process may have removed the
+        # input (.tex) file, but that's ok as we only care
+        # about the output file and one or the other process
+        # will have written that.
+        pass
 
-        with tmp_output_file.open(mode="r", encoding=KATEX_OUTPUT_ENCODING) as fobj:
-            result = typ.cast(str, fobj.read())
+
+def tex2html(tex: str, options: MaybeOptions = None) -> str:
+    cmd_parts         = list(_iter_cmd_parts(options))
+    digest            = _cmd_digest(tex, cmd_parts)
+    cache_filename    = digest + ".html"
+    cache_output_file = CACHE_DIR / cache_filename
+
+    try:
+        if cache_output_file.exists():
+            # give cached file a life extension (update mtime)
+            cache_output_file.touch()
+        else:
+            with _atomic_writable_path(cache_output_file) as tmp_output_file:
+                _write_tex2html(cmd_parts, tex, tmp_output_file)
+
+        with cache_output_file.open(mode="r", encoding=KATEX_OUTPUT_ENCODING) as fobj:
+            result: str = fobj.read()
             return result.strip()
     finally:
-        _cleanup_tmp_dir()
+        _cleanup_cache_dir()
 
 
-def _cleanup_tmp_dir() -> None:
+def _cleanup_cache_dir() -> None:
     min_mtime = time.time() - 24 * 60 * 60
-    for fpath in TMP_DIR.iterdir():
-        if fpath.is_file():
+    for fpath in CACHE_DIR.iterdir():
+        try:
+            if not fpath.is_file():
+                continue
+
             mtime = fpath.stat().st_mtime
-            if mtime < min_mtime:
-                fpath.unlink()
+            if mtime > min_mtime:
+                continue
+
+            fpath.unlink()
+        except FileNotFoundError:
+            pass  # concurrent thread deleted file before we did
 
 
 # NOTE: in order to not have to update the code

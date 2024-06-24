@@ -34,8 +34,6 @@ import markdown_katex.extension as ext
 DATA_DIR = pl.Path(__file__).parent.parent / "fixture_data"
 DATA_DIR.mkdir(parents=True, exist_ok=True)
 
-TMP_DIR = pl.Path(tempfile.gettempdir()) / "mdkatex"
-
 BASIC_TEX_TXT = r"""
 f(x) = \int_{-\infty}^\infty
     \hat f(\xi)\,e^{2 \pi i \xi x}
@@ -410,7 +408,7 @@ def test_html_output():
     html = textwrap.dedent(html.lstrip("\n"))
     html = html.replace("{{result}}", result)
 
-    tmp_file = TMP_DIR / "test_output.html"
+    tmp_file = wrp.CACHE_DIR / "test_output.html"
     with tmp_file.open(mode="w", encoding="utf-8") as fobj:
         fobj.write(html)
 
