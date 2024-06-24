@@ -2,7 +2,7 @@
 # This file is part of markdown-katex.
 # https://gitlab.com/mbarkhau/markdown-katex
 #
-# Copyright (c) 2019-2021 Manuel Barkhau (mbarkhau@gmail.com) - MIT License
+# Copyright (c) 2019-2024 Manuel Barkhau (mbarkhau@gmail.com) - MIT License
 # SPDX-License-Identifier: MIT
 
 # pytest fixtures work this way

@@ -1,7 +1,7 @@
 # This file is part of the markdown-katex project
 # https://github.com/mbarkhau/markdown-katex
 #
-# Copyright (c) 2019-2021 Manuel Barkhau (mbarkhau@gmail.com) - MIT License
+# Copyright (c) 2019-2024 Manuel Barkhau (mbarkhau@gmail.com) - MIT License
 # SPDX-License-Identifier: MIT
 """markdown_katex extension.
 
@@ -10,7 +10,7 @@ uses KaTeX to generate html from tex.
 """
 
 
-__version__ = "v202112.1034"
+__version__ = "v202406.1035"
 
 from markdown_katex.wrapper import tex2html
 from markdown_katex.wrapper import get_bin_cmd

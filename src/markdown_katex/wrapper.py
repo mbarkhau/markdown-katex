@@ -1,7 +1,7 @@
 # This file is part of the markdown-katex project
 # https://github.com/mbarkhau/markdown-katex
 #
-# Copyright (c) 2019-2021 Manuel Barkhau (mbarkhau@gmail.com) - MIT License
+# Copyright (c) 2019-2024 Manuel Barkhau (mbarkhau@gmail.com) - MIT License
 # SPDX-License-Identifier: MIT
 
 # NOTE (mb 2019-05-16): This module is substantially shared with the
