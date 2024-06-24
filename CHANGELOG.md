@@ -14,6 +14,14 @@ Thank you to for testing, reporting issues and contributing patches:
 - @sacredfox - Akihiro Nomura
 - @jnsdrtlf
 - @dodoni - Markus Wendt
+- @tovrstra - Toon Verstraelen
+
+
+## v202406.1035
+
+ - Fix [#17][gh_17] rare concurrency issue.
+
+[gh_17]: https://github.com/mbarkhau/markdown-katex/pull/17
 
 
 ## v202112.1034
