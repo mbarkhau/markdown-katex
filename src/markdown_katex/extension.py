@@ -42,7 +42,7 @@ def _clean_block_text(block_text: str) -> str:
 
 def make_marker_id(text: str) -> str:
     data = text.encode("utf-8")
-    return hashlib.md5(data).hexdigest()
+    return hashlib.sha256(data).hexdigest()
 
 
 def svg2img(html: str) -> str:
