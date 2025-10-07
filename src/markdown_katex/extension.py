@@ -28,8 +28,8 @@ B64IMG_TMPL = '<img src="data:image/svg+xml;base64,{img_text}"/>'
 
 
 FENCE_RE       = re.compile(r"^(\s*)(`{3,}|~{3,})")
-BLOCK_START_RE = re.compile(r"^(\s*)(`{3,}|~{3,})math")
-BLOCK_CLEAN_RE = re.compile(r"^(\s*)(`{3,}|~{3,})math(.*)(\2)$", flags=re.DOTALL)
+BLOCK_START_RE = re.compile(r"^(\s*)(`{3,}|~{3,})\s*math")
+BLOCK_CLEAN_RE = re.compile(r"^(\s*)(`{3,}|~{3,})\s*math(.*)(\2)$", flags=re.DOTALL)
 
 
 def _clean_block_text(block_text: str) -> str:
