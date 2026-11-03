@@ -18,7 +18,7 @@ flake8-docstrings
 flake8-builtins
 flake8-comprehensions
 flake8-junit-report
-pylint==2.12.1
+pylint==4.0.9
 pylint-ignore>=2020.1013
 
 types-Markdown
